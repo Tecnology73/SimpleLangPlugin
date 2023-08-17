@@ -30,8 +30,8 @@ public class SimpleTypeDeclarationImpl extends SimpleNamedElementImpl implements
 
   @Override
   @NotNull
-  public SimpleBlock getBlock() {
-    return findNotNullChildByClass(SimpleBlock.class);
+  public SimpleTypeBlock getTypeBlock() {
+    return findNotNullChildByClass(SimpleTypeBlock.class);
   }
 
   @Override

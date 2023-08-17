@@ -21,6 +21,12 @@ public interface SimpleVariableDeclaration extends SimpleNamedElement {
   @Nullable
   PsiElement getColon();
 
+  @Nullable
+  PsiElement getSemicolon();
+
+  @Nullable
+  PsiElement getSemicolonSynthetic();
+
   @NotNull
   PsiElement getIdentifier();
 

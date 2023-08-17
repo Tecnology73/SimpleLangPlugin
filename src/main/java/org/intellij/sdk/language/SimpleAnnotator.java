@@ -47,10 +47,10 @@ public class SimpleAnnotator implements Annotator {
                         .create();
             }
         } else if (element instanceof SimpleMemberAccessExpr memberAccessExpr) {
-            holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+            /*holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
                     .range(memberAccessExpr.getMemberField())
                     .textAttributes(MEMBER)
-                    .create();
+                    .create();*/
 
             PsiElement expr = memberAccessExpr.getExpression().getFirstChild();
             if (expr instanceof SimpleFunctionCall functionCall) {

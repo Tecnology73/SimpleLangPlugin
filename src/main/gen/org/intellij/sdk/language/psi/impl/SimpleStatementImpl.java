@@ -29,20 +29,8 @@ public class SimpleStatementImpl extends ASTWrapperPsiElement implements SimpleS
 
   @Override
   @Nullable
-  public SimpleConstructorCall getConstructorCall() {
-    return findChildByClass(SimpleConstructorCall.class);
-  }
-
-  @Override
-  @Nullable
-  public SimpleFunctionCall getFunctionCall() {
-    return findChildByClass(SimpleFunctionCall.class);
-  }
-
-  @Override
-  @Nullable
-  public SimpleMemberAccessExpr getMemberAccessExpr() {
-    return findChildByClass(SimpleMemberAccessExpr.class);
+  public SimpleExpression getExpression() {
+    return findChildByClass(SimpleExpression.class);
   }
 
   @Override

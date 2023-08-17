@@ -8,15 +8,18 @@ import com.intellij.psi.PsiElement;
 public interface SimpleExpression extends PsiElement {
 
   @Nullable
-  SimpleBaseExpression getBaseExpression();
+  SimpleAssignExpr getAssignExpr();
 
   @Nullable
-  SimpleConstructorCall getConstructorCall();
-
-  @Nullable
-  SimpleFunctionCall getFunctionCall();
+  SimpleCallExpr getCallExpr();
 
   @Nullable
   SimpleMemberAccessExpr getMemberAccessExpr();
+
+  @Nullable
+  SimpleMemberCallExpr getMemberCallExpr();
+
+  @Nullable
+  SimpleValueExpr getValueExpr();
 
 }

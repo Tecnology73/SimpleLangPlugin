@@ -10,7 +10,7 @@ import com.intellij.psi.PsiReference;
 public interface SimpleTypeDeclaration extends SimpleNamedElement {
 
   @NotNull
-  SimpleBlock getBlock();
+  SimpleTypeBlock getTypeBlock();
 
   @NotNull
   SimpleTypeName getTypeName();

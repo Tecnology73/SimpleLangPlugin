@@ -5,15 +5,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface SimpleArguments extends PsiElement {
+public interface SimpleTypeBlock extends PsiElement {
 
   @NotNull
-  List<SimpleExpression> getExpressionList();
+  List<SimpleTypeField> getTypeFieldList();
 
   @NotNull
-  PsiElement getLparen();
+  PsiElement getLbrace();
 
   @NotNull
-  PsiElement getRparen();
+  PsiElement getRbrace();
 
 }

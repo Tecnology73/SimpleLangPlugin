@@ -9,20 +9,28 @@ import org.intellij.sdk.language.psi.impl.*;
 public interface SimpleTypes {
 
   IElementType ARGUMENTS = new SimpleElementType("ARGUMENTS");
-  IElementType BASE_EXPRESSION = new SimpleElementType("BASE_EXPRESSION");
+  IElementType ASSIGN_EXPR = new SimpleElementType("ASSIGN_EXPR");
   IElementType BLOCK = new SimpleElementType("BLOCK");
+  IElementType CALL_EXPR = new SimpleElementType("CALL_EXPR");
   IElementType CONSTRUCTOR_CALL = new SimpleElementType("CONSTRUCTOR_CALL");
   IElementType EXPRESSION = new SimpleElementType("EXPRESSION");
   IElementType FUNCTION = new SimpleElementType("FUNCTION");
   IElementType FUNCTION_CALL = new SimpleElementType("FUNCTION_CALL");
+  IElementType FUNCTION_RECEIVER = new SimpleElementType("FUNCTION_RECEIVER");
   IElementType GENERIC = new SimpleElementType("GENERIC");
+  IElementType LITERAL = new SimpleElementType("LITERAL");
   IElementType MEMBER_ACCESS_EXPR = new SimpleElementType("MEMBER_ACCESS_EXPR");
-  IElementType MEMBER_FIELD = new SimpleElementType("MEMBER_FIELD");
+  IElementType MEMBER_CALL_EXPR = new SimpleElementType("MEMBER_CALL_EXPR");
+  IElementType PARAMETER = new SimpleElementType("PARAMETER");
   IElementType PARAMETERS = new SimpleElementType("PARAMETERS");
   IElementType RETURN_STATEMENT = new SimpleElementType("RETURN_STATEMENT");
   IElementType STATEMENT = new SimpleElementType("STATEMENT");
+  IElementType TOP_LEVEL_DECLARATION = new SimpleElementType("TOP_LEVEL_DECLARATION");
+  IElementType TYPE_BLOCK = new SimpleElementType("TYPE_BLOCK");
   IElementType TYPE_DECLARATION = new SimpleElementType("TYPE_DECLARATION");
+  IElementType TYPE_FIELD = new SimpleElementType("TYPE_FIELD");
   IElementType TYPE_NAME = new SimpleElementType("TYPE_NAME");
+  IElementType VALUE_EXPR = new SimpleElementType("VALUE_EXPR");
   IElementType VARIABLE_DECLARATION = new SimpleElementType("VARIABLE_DECLARATION");
   IElementType VARIABLE_NAME = new SimpleElementType("VARIABLE_NAME");
 
@@ -55,11 +63,14 @@ public interface SimpleTypes {
       if (type == ARGUMENTS) {
         return new SimpleArgumentsImpl(node);
       }
-      else if (type == BASE_EXPRESSION) {
-        return new SimpleBaseExpressionImpl(node);
+      else if (type == ASSIGN_EXPR) {
+        return new SimpleAssignExprImpl(node);
       }
       else if (type == BLOCK) {
         return new SimpleBlockImpl(node);
+      }
+      else if (type == CALL_EXPR) {
+        return new SimpleCallExprImpl(node);
       }
       else if (type == CONSTRUCTOR_CALL) {
         return new SimpleConstructorCallImpl(node);
@@ -73,14 +84,23 @@ public interface SimpleTypes {
       else if (type == FUNCTION_CALL) {
         return new SimpleFunctionCallImpl(node);
       }
+      else if (type == FUNCTION_RECEIVER) {
+        return new SimpleFunctionReceiverImpl(node);
+      }
       else if (type == GENERIC) {
         return new SimpleGenericImpl(node);
+      }
+      else if (type == LITERAL) {
+        return new SimpleLiteralImpl(node);
       }
       else if (type == MEMBER_ACCESS_EXPR) {
         return new SimpleMemberAccessExprImpl(node);
       }
-      else if (type == MEMBER_FIELD) {
-        return new SimpleMemberFieldImpl(node);
+      else if (type == MEMBER_CALL_EXPR) {
+        return new SimpleMemberCallExprImpl(node);
+      }
+      else if (type == PARAMETER) {
+        return new SimpleParameterImpl(node);
       }
       else if (type == PARAMETERS) {
         return new SimpleParametersImpl(node);
@@ -91,11 +111,23 @@ public interface SimpleTypes {
       else if (type == STATEMENT) {
         return new SimpleStatementImpl(node);
       }
+      else if (type == TOP_LEVEL_DECLARATION) {
+        return new SimpleTopLevelDeclarationImpl(node);
+      }
+      else if (type == TYPE_BLOCK) {
+        return new SimpleTypeBlockImpl(node);
+      }
       else if (type == TYPE_DECLARATION) {
         return new SimpleTypeDeclarationImpl(node);
       }
+      else if (type == TYPE_FIELD) {
+        return new SimpleTypeFieldImpl(node);
+      }
       else if (type == TYPE_NAME) {
         return new SimpleTypeNameImpl(node);
+      }
+      else if (type == VALUE_EXPR) {
+        return new SimpleValueExprImpl(node);
       }
       else if (type == VARIABLE_DECLARATION) {
         return new SimpleVariableDeclarationImpl(node);

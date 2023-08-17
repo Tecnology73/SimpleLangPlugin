@@ -11,11 +11,15 @@ public class SimpleVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitBaseExpression(@NotNull SimpleBaseExpression o) {
+  public void visitAssignExpr(@NotNull SimpleAssignExpr o) {
     visitPsiElement(o);
   }
 
   public void visitBlock(@NotNull SimpleBlock o) {
+    visitPsiElement(o);
+  }
+
+  public void visitCallExpr(@NotNull SimpleCallExpr o) {
     visitPsiElement(o);
   }
 
@@ -28,23 +32,35 @@ public class SimpleVisitor extends PsiElementVisitor {
   }
 
   public void visitFunction(@NotNull SimpleFunction o) {
-    visitNamedElement(o);
+    visitFunction(o);
   }
 
   public void visitFunctionCall(@NotNull SimpleFunctionCall o) {
     visitNamedElement(o);
   }
 
+  public void visitFunctionReceiver(@NotNull SimpleFunctionReceiver o) {
+    visitPsiElement(o);
+  }
+
   public void visitGeneric(@NotNull SimpleGeneric o) {
     visitPsiElement(o);
   }
 
-  public void visitMemberAccessExpr(@NotNull SimpleMemberAccessExpr o) {
-    visitNamedElement(o);
+  public void visitLiteral(@NotNull SimpleLiteral o) {
+    visitPsiElement(o);
   }
 
-  public void visitMemberField(@NotNull SimpleMemberField o) {
-    visitNamedElement(o);
+  public void visitMemberAccessExpr(@NotNull SimpleMemberAccessExpr o) {
+    visitPsiElement(o);
+  }
+
+  public void visitMemberCallExpr(@NotNull SimpleMemberCallExpr o) {
+    visitPsiElement(o);
+  }
+
+  public void visitParameter(@NotNull SimpleParameter o) {
+    visitPsiElement(o);
   }
 
   public void visitParameters(@NotNull SimpleParameters o) {
@@ -59,12 +75,28 @@ public class SimpleVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitTopLevelDeclaration(@NotNull SimpleTopLevelDeclaration o) {
+    visitPsiElement(o);
+  }
+
+  public void visitTypeBlock(@NotNull SimpleTypeBlock o) {
+    visitPsiElement(o);
+  }
+
   public void visitTypeDeclaration(@NotNull SimpleTypeDeclaration o) {
     visitNamedElement(o);
   }
 
+  public void visitTypeField(@NotNull SimpleTypeField o) {
+    visitPsiElement(o);
+  }
+
   public void visitTypeName(@NotNull SimpleTypeName o) {
     visitNamedElement(o);
+  }
+
+  public void visitValueExpr(@NotNull SimpleValueExpr o) {
+    visitPsiElement(o);
   }
 
   public void visitVariableDeclaration(@NotNull SimpleVariableDeclaration o) {

@@ -35,7 +35,7 @@ public class SimpleSyntaxHighlighter extends SyntaxHighlighterBase {
         fillMap(ATTRIBUTES, SimpleParserDefinition.OPERATORS, OPERATOR);
 //        fillMap(ATTRIBUTES, SimpleParserDefinition.STRING_LITERALS, STRING);
         fillMap(ATTRIBUTES, SimpleParserDefinition.NUMBERS, NUMBER);
-        fillMap(ATTRIBUTES, MEMBER, SimpleTypes.BASE_EXPRESSION);
+//        fillMap(ATTRIBUTES, MEMBER, SimpleTypes.BASE_EXPRESSION);
     }
 
     @NotNull

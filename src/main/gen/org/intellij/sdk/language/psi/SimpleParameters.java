@@ -8,6 +8,9 @@ import com.intellij.psi.PsiElement;
 public interface SimpleParameters extends PsiElement {
 
   @NotNull
+  List<SimpleParameter> getParameterList();
+
+  @NotNull
   PsiElement getLparen();
 
   @NotNull

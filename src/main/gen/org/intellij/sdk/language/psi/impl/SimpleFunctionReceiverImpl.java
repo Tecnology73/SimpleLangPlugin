@@ -11,14 +11,14 @@ import static org.intellij.sdk.language.psi.SimpleTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.intellij.sdk.language.psi.*;
 
-public class SimpleArgumentsImpl extends ASTWrapperPsiElement implements SimpleArguments {
+public class SimpleFunctionReceiverImpl extends ASTWrapperPsiElement implements SimpleFunctionReceiver {
 
-  public SimpleArgumentsImpl(@NotNull ASTNode node) {
+  public SimpleFunctionReceiverImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull SimpleVisitor visitor) {
-    visitor.visitArguments(this);
+    visitor.visitFunctionReceiver(this);
   }
 
   @Override
@@ -29,20 +29,20 @@ public class SimpleArgumentsImpl extends ASTWrapperPsiElement implements SimpleA
 
   @Override
   @NotNull
-  public List<SimpleExpression> getExpressionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, SimpleExpression.class);
+  public SimpleTypeName getTypeName() {
+    return findNotNullChildByClass(SimpleTypeName.class);
   }
 
   @Override
   @NotNull
-  public PsiElement getLparen() {
-    return findNotNullChildByType(LPAREN);
+  public PsiElement getGreaterThan() {
+    return findNotNullChildByType(GREATER_THAN);
   }
 
   @Override
   @NotNull
-  public PsiElement getRparen() {
-    return findNotNullChildByType(RPAREN);
+  public PsiElement getLessThan() {
+    return findNotNullChildByType(LESS_THAN);
   }
 
 }

@@ -4,18 +4,19 @@ package org.intellij.sdk.language.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import com.intellij.navigation.ItemPresentation;
-import com.intellij.psi.PsiReference;
 
-public interface SimpleFunction extends SimpleNamedElement {
+public interface SimpleFunction extends com.example.sampleplugin.psi.SimpleFunction {
 
-  @NotNull
+  @Nullable
   SimpleBlock getBlock();
+
+  @Nullable
+  SimpleFunctionReceiver getFunctionReceiver();
 
   @Nullable
   SimpleGeneric getGeneric();
 
-  @NotNull
+  @Nullable
   SimpleParameters getParameters();
 
   @Nullable
@@ -27,16 +28,16 @@ public interface SimpleFunction extends SimpleNamedElement {
   @NotNull
   PsiElement getIdentifier();
 
-  String getKey();
+  //WARNING: getName(...) is skipped
+  //matching getName(SimpleFunction, ...)
+  //methods are not found in SimplePsiImplUtil
 
-  String getName();
+  //WARNING: getNameIdentifier(...) is skipped
+  //matching getNameIdentifier(SimpleFunction, ...)
+  //methods are not found in SimplePsiImplUtil
 
-  PsiElement setName(String newName);
-
-  PsiElement getNameIdentifier();
-
-  ItemPresentation getPresentation();
-
-  PsiReference getReference();
+  //WARNING: getReference(...) is skipped
+  //matching getReference(SimpleFunction, ...)
+  //methods are not found in SimplePsiImplUtil
 
 }

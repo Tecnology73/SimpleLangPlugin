@@ -5,18 +5,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface SimpleReturnStatement extends PsiElement {
+public interface SimpleAssignExpr extends PsiElement {
 
   @Nullable
   SimpleExpression getExpression();
 
   @Nullable
-  PsiElement getSemicolon();
-
-  @Nullable
-  PsiElement getSemicolonSynthetic();
+  PsiElement getAssign();
 
   @NotNull
-  PsiElement getReturn();
+  PsiElement getIdentifier();
 
 }

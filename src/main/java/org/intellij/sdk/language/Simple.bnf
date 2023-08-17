@@ -41,15 +41,11 @@
   generateTokenAccessors=true
 }
 
-//program ::= identifier '.' Expression semi
 program ::= TopLevelDeclaration*
 
 private semi ::= SEMICOLON_SYNTHETIC | SEMICOLON | <<eof>>
 
-private TopLevelDeclaration ::= !<<eof>> TopDeclaration semi {pin=1 recoverWhile=TopLevelDeclarationRecover}
-private TopDeclaration ::=
-      TypeDeclaration
-    | Function
+TopLevelDeclaration ::= !<<eof>> (TypeDeclaration | Function) semi {pin=1 recoverWhile=TopLevelDeclarationRecover}
 private TopLevelDeclarationRecover ::= !(SEMICOLON | TYPE_ | func)
 
 VariableName ::= identifier
@@ -60,62 +56,83 @@ TypeName ::= identifier
     methods=[getKey getName setName getNameIdentifier getPresentation getReference]
 }
 
-Parameters ::= LPAREN (identifier COLON identifier COMMA?)* RPAREN
-Arguments ::= LPAREN (Literal COMMA?)* RPAREN
+Literal ::= int | identifier
+
+// (a: T(, b: T)?)
+Parameters ::= LPAREN (Parameter (COMMA Parameter)*)? RPAREN
+Parameter ::= identifier COLON TypeName
+
+Arguments ::= LPAREN (Expression (COMMA Expression)*)? RPAREN
+
 Generic ::= LESS_THAN TypeName GREATER_THAN
 
-TypeDeclaration ::= TYPE_ TypeName Block
+TypeDeclaration ::= TYPE_ TypeName TypeBlock
 {
     mixin="org.intellij.sdk.language.psi.impl.SimpleNamedElementImpl"
     implements="org.intellij.sdk.language.psi.SimpleNamedElement"
     methods=[getKey getName setName getNameIdentifier getPresentation getReference]
 }
-Function ::= func Generic? identifier Parameters TypeName? Block
+TypeBlock ::= LBRACE TypeField* RBRACE
+TypeField ::= identifier (
+        COLON TypeName ASSIGN ValueExpr   // a: T = value
+      | COLON TypeName                    // a: T
+      | ASSIGN ValueExpr                  // a = value
+) semi
+
+Function ::= func FunctionReceiver? identifier Generic? Parameters TypeName? Block
 {
-    mixin="org.intellij.sdk.language.psi.impl.SimpleNamedElementImpl"
-    implements="org.intellij.sdk.language.psi.SimpleNamedElement"
-    methods=[getKey getName setName getNameIdentifier getPresentation getReference]
+    pin=3
+    extends="com.example.sampleplugin.psi.impl.SimpleFunctionImpl"
+    implements="com.example.sampleplugin.psi.SimpleFunction"
+    methods=[getName getNameIdentifier getReference]
 }
+FunctionReceiver ::= LESS_THAN TypeName GREATER_THAN
 
 Block ::= LBRACE Statement* RBRACE
 
-Statement ::= (
+Statement ::=
       ReturnStatement
     | VariableDeclaration
-    | ConstructorCall
-    | FunctionCall
-    | MemberAccessExpr
-) semi
-
-private Literal ::=
-      int
-    | identifier
+    | Expression semi
 
 Expression ::=
-      FunctionCall
-    | ConstructorCall
+      AssignExpr
+    | CallGroup
+    | ValueExpr
     | MemberAccessExpr
-    | BaseExpression
 
-BaseExpression ::= identifier
-                | Literal
+ValueExpr ::=
+      int
+    | identifier
+    | ConstructorCall
 
-ReturnStatement ::= return Expression? // return expr
+private CallGroup ::= CallExpr | MemberCallExpr
+
+MemberCallExpr ::= MemberAccessExpr Arguments
+
+CallExpr ::= identifier Arguments
+AssignExpr ::= identifier ASSIGN Expression {pin=1 rightAssociative=true}
+
+ReturnStatement ::= return Expression? semi // return expr
+
 VariableDeclaration ::= identifier (
       COLON TypeName ASSIGN Expression   // a: T = value
     | COLON TypeName                     // a: T
-    | ASSIGN Expression)                 // a = value
+    | ASSIGN Expression                  // a = value
+) semi
 {
     mixin="org.intellij.sdk.language.psi.impl.SimpleNamedElementImpl"
     implements="org.intellij.sdk.language.psi.SimpleNamedElement"
     methods=[getKey getName setName getNameIdentifier getPresentation getReference]
 }
+
 ConstructorCall ::= new TypeName Arguments // new T(...)
 {
     mixin="org.intellij.sdk.language.psi.impl.SimpleNamedElementImpl"
     implements="org.intellij.sdk.language.psi.SimpleNamedElement"
     methods=[getKey getName setName getNameIdentifier getPresentation getReference]
 }
+
 FunctionCall ::= identifier Arguments // func(...)
 {
     mixin="org.intellij.sdk.language.psi.impl.SimpleNamedElementImpl"
@@ -123,15 +140,11 @@ FunctionCall ::= identifier Arguments // func(...)
     methods=[getKey getName setName getNameIdentifier getPresentation getReference]
 }
 
-MemberField ::= identifier
+MemberAccessExpr ::= Expression DOT identifier
 {
-    mixin="org.intellij.sdk.language.psi.impl.SimpleNamedElementImpl"
-    implements="org.intellij.sdk.language.psi.SimpleNamedElement"
-    methods=[getKey getName setName getNameIdentifier getPresentation getReference]
+    pin=2
+    recoverWhile=MemberAccessExprRecover
+    mixin="com.example.sampleplugin.psi.impl.SimpleMemberAccessExprImpl"
+    methods=[getReference isCallExpression getLHS getRHS]
 }
-MemberAccessExpr ::= MemberField '.' Expression
-{
-    mixin="org.intellij.sdk.language.psi.impl.SimpleNamedElementImpl"
-    implements="org.intellij.sdk.language.psi.SimpleNamedElement"
-    methods=[getKey getName setName getNameIdentifier getPresentation getReference]
-}
+private MemberAccessExprRecover ::= !(DOT | semi | RBRACE | identifier | '\n')

@@ -9,10 +9,8 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.intellij.sdk.language.psi.SimpleTypes.*;
 import org.intellij.sdk.language.psi.*;
-import com.intellij.navigation.ItemPresentation;
-import com.intellij.psi.PsiReference;
 
-public class SimpleFunctionImpl extends SimpleNamedElementImpl implements SimpleFunction {
+public class SimpleFunctionImpl extends com.example.sampleplugin.psi.impl.SimpleFunctionImpl implements SimpleFunction {
 
   public SimpleFunctionImpl(@NotNull ASTNode node) {
     super(node);
@@ -29,9 +27,15 @@ public class SimpleFunctionImpl extends SimpleNamedElementImpl implements Simple
   }
 
   @Override
-  @NotNull
+  @Nullable
   public SimpleBlock getBlock() {
-    return findNotNullChildByClass(SimpleBlock.class);
+    return findChildByClass(SimpleBlock.class);
+  }
+
+  @Override
+  @Nullable
+  public SimpleFunctionReceiver getFunctionReceiver() {
+    return findChildByClass(SimpleFunctionReceiver.class);
   }
 
   @Override
@@ -41,9 +45,9 @@ public class SimpleFunctionImpl extends SimpleNamedElementImpl implements Simple
   }
 
   @Override
-  @NotNull
+  @Nullable
   public SimpleParameters getParameters() {
-    return findNotNullChildByClass(SimpleParameters.class);
+    return findChildByClass(SimpleParameters.class);
   }
 
   @Override
@@ -62,36 +66,6 @@ public class SimpleFunctionImpl extends SimpleNamedElementImpl implements Simple
   @NotNull
   public PsiElement getIdentifier() {
     return findNotNullChildByType(IDENTIFIER);
-  }
-
-  @Override
-  public String getKey() {
-    return SimplePsiImplUtil.getKey(this);
-  }
-
-  @Override
-  public String getName() {
-    return SimplePsiImplUtil.getName(this);
-  }
-
-  @Override
-  public PsiElement setName(String newName) {
-    return SimplePsiImplUtil.setName(this, newName);
-  }
-
-  @Override
-  public PsiElement getNameIdentifier() {
-    return SimplePsiImplUtil.getNameIdentifier(this);
-  }
-
-  @Override
-  public ItemPresentation getPresentation() {
-    return SimplePsiImplUtil.getPresentation(this);
-  }
-
-  @Override
-  public PsiReference getReference() {
-    return SimplePsiImplUtil.getReference(this);
   }
 
 }

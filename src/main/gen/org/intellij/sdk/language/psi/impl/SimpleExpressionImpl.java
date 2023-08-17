@@ -29,26 +29,32 @@ public class SimpleExpressionImpl extends ASTWrapperPsiElement implements Simple
 
   @Override
   @Nullable
-  public SimpleBaseExpression getBaseExpression() {
-    return findChildByClass(SimpleBaseExpression.class);
+  public SimpleAssignExpr getAssignExpr() {
+    return findChildByClass(SimpleAssignExpr.class);
   }
 
   @Override
   @Nullable
-  public SimpleConstructorCall getConstructorCall() {
-    return findChildByClass(SimpleConstructorCall.class);
-  }
-
-  @Override
-  @Nullable
-  public SimpleFunctionCall getFunctionCall() {
-    return findChildByClass(SimpleFunctionCall.class);
+  public SimpleCallExpr getCallExpr() {
+    return findChildByClass(SimpleCallExpr.class);
   }
 
   @Override
   @Nullable
   public SimpleMemberAccessExpr getMemberAccessExpr() {
     return findChildByClass(SimpleMemberAccessExpr.class);
+  }
+
+  @Override
+  @Nullable
+  public SimpleMemberCallExpr getMemberCallExpr() {
+    return findChildByClass(SimpleMemberCallExpr.class);
+  }
+
+  @Override
+  @Nullable
+  public SimpleValueExpr getValueExpr() {
+    return findChildByClass(SimpleValueExpr.class);
   }
 
 }

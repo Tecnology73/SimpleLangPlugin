@@ -8,13 +8,7 @@ import com.intellij.psi.PsiElement;
 public interface SimpleStatement extends PsiElement {
 
   @Nullable
-  SimpleConstructorCall getConstructorCall();
-
-  @Nullable
-  SimpleFunctionCall getFunctionCall();
-
-  @Nullable
-  SimpleMemberAccessExpr getMemberAccessExpr();
+  SimpleExpression getExpression();
 
   @Nullable
   SimpleReturnStatement getReturnStatement();

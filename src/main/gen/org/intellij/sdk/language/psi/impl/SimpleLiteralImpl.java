@@ -11,14 +11,14 @@ import static org.intellij.sdk.language.psi.SimpleTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.intellij.sdk.language.psi.*;
 
-public class SimpleBaseExpressionImpl extends ASTWrapperPsiElement implements SimpleBaseExpression {
+public class SimpleLiteralImpl extends ASTWrapperPsiElement implements SimpleLiteral {
 
-  public SimpleBaseExpressionImpl(@NotNull ASTNode node) {
+  public SimpleLiteralImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull SimpleVisitor visitor) {
-    visitor.visitBaseExpression(this);
+    visitor.visitLiteral(this);
   }
 
   @Override

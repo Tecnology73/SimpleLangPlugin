@@ -9,10 +9,9 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.intellij.sdk.language.psi.SimpleTypes.*;
 import org.intellij.sdk.language.psi.*;
-import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiReference;
 
-public class SimpleMemberAccessExprImpl extends SimpleNamedElementImpl implements SimpleMemberAccessExpr {
+public class SimpleMemberAccessExprImpl extends com.example.sampleplugin.psi.impl.SimpleMemberAccessExprImpl implements SimpleMemberAccessExpr {
 
   public SimpleMemberAccessExprImpl(@NotNull ASTNode node) {
     super(node);
@@ -36,44 +35,14 @@ public class SimpleMemberAccessExprImpl extends SimpleNamedElementImpl implement
 
   @Override
   @NotNull
-  public SimpleMemberField getMemberField() {
-    return findNotNullChildByClass(SimpleMemberField.class);
-  }
-
-  @Override
-  @NotNull
   public PsiElement getDot() {
     return findNotNullChildByType(DOT);
   }
 
   @Override
-  public String getKey() {
-    return SimplePsiImplUtil.getKey(this);
-  }
-
-  @Override
-  public String getName() {
-    return SimplePsiImplUtil.getName(this);
-  }
-
-  @Override
-  public PsiElement setName(String newName) {
-    return SimplePsiImplUtil.setName(this, newName);
-  }
-
-  @Override
-  public PsiElement getNameIdentifier() {
-    return SimplePsiImplUtil.getNameIdentifier(this);
-  }
-
-  @Override
-  public ItemPresentation getPresentation() {
-    return SimplePsiImplUtil.getPresentation(this);
-  }
-
-  @Override
-  public PsiReference getReference() {
-    return SimplePsiImplUtil.getReference(this);
+  @Nullable
+  public PsiElement getIdentifier() {
+    return findChildByType(IDENTIFIER);
   }
 
 }

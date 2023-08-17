@@ -11,14 +11,14 @@ import static org.intellij.sdk.language.psi.SimpleTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.intellij.sdk.language.psi.*;
 
-public class SimpleArgumentsImpl extends ASTWrapperPsiElement implements SimpleArguments {
+public class SimpleTopLevelDeclarationImpl extends ASTWrapperPsiElement implements SimpleTopLevelDeclaration {
 
-  public SimpleArgumentsImpl(@NotNull ASTNode node) {
+  public SimpleTopLevelDeclarationImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull SimpleVisitor visitor) {
-    visitor.visitArguments(this);
+    visitor.visitTopLevelDeclaration(this);
   }
 
   @Override
@@ -28,21 +28,27 @@ public class SimpleArgumentsImpl extends ASTWrapperPsiElement implements SimpleA
   }
 
   @Override
-  @NotNull
-  public List<SimpleExpression> getExpressionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, SimpleExpression.class);
+  @Nullable
+  public SimpleFunction getFunction() {
+    return findChildByClass(SimpleFunction.class);
   }
 
   @Override
-  @NotNull
-  public PsiElement getLparen() {
-    return findNotNullChildByType(LPAREN);
+  @Nullable
+  public SimpleTypeDeclaration getTypeDeclaration() {
+    return findChildByClass(SimpleTypeDeclaration.class);
   }
 
   @Override
-  @NotNull
-  public PsiElement getRparen() {
-    return findNotNullChildByType(RPAREN);
+  @Nullable
+  public PsiElement getSemicolon() {
+    return findChildByType(SEMICOLON);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getSemicolonSynthetic() {
+    return findChildByType(SEMICOLON_SYNTHETIC);
   }
 
 }

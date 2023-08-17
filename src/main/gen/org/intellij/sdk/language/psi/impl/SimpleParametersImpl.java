@@ -29,6 +29,12 @@ public class SimpleParametersImpl extends ASTWrapperPsiElement implements Simple
 
   @Override
   @NotNull
+  public List<SimpleParameter> getParameterList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, SimpleParameter.class);
+  }
+
+  @Override
+  @NotNull
   public PsiElement getLparen() {
     return findNotNullChildByType(LPAREN);
   }

@@ -5,18 +5,18 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface SimpleReturnStatement extends PsiElement {
+public interface SimpleTopLevelDeclaration extends PsiElement {
 
   @Nullable
-  SimpleExpression getExpression();
+  SimpleFunction getFunction();
+
+  @Nullable
+  SimpleTypeDeclaration getTypeDeclaration();
 
   @Nullable
   PsiElement getSemicolon();
 
   @Nullable
   PsiElement getSemicolonSynthetic();
-
-  @NotNull
-  PsiElement getReturn();
 
 }
