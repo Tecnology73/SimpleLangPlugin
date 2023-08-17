@@ -64,5 +64,9 @@
         <lang.elementManipulator
                 forClass="org.intellij.sdk.language.psi.impl.SimpleNamedElementImpl"
                 implementationClass="org.intellij.sdk.language.NamedElementManipulator"/>
+
+        <annotator
+                language="Simple"
+                implementationClass="org.intellij.sdk.language.SimpleAnnotator"/>
     </extensions>
 </idea-plugin>

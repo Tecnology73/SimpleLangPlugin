@@ -30,10 +30,12 @@ public class SimpleSyntaxHighlighter extends SyntaxHighlighterBase {
         fillMap(ATTRIBUTES, COLON, SimpleTypes.COLON);
         fillMap(ATTRIBUTES, SEMICOLON, SimpleTypes.SEMICOLON);
         fillMap(ATTRIBUTES, COMMA, SimpleTypes.COMMA);
+        fillMap(ATTRIBUTES, IDENTIFIER, SimpleTypes.IDENTIFIER);
         fillMap(ATTRIBUTES, SimpleParserDefinition.KEYWORDS, KEYWORD);
         fillMap(ATTRIBUTES, SimpleParserDefinition.OPERATORS, OPERATOR);
 //        fillMap(ATTRIBUTES, SimpleParserDefinition.STRING_LITERALS, STRING);
         fillMap(ATTRIBUTES, SimpleParserDefinition.NUMBERS, NUMBER);
+        fillMap(ATTRIBUTES, MEMBER, SimpleTypes.BASE_EXPRESSION);
     }
 
     @NotNull

@@ -56,6 +56,9 @@ IDENT = {LETTER} ({LETTER} | {DIGIT} )*
 "."                                       { return DOT; }
 ".."                                      { return DOUBLE_DOT; }
 
+"<"                                      { return LESS_THAN; }
+">"                                      { return GREATER_THAN; }
+
 "="                                       { return ASSIGN; }
 "=="                                      { return EQUAL; }
 

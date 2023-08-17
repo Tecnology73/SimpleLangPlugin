@@ -7,22 +7,16 @@ import com.intellij.psi.PsiElement;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiReference;
 
-public interface SimpleVariableDeclaration extends SimpleNamedElement {
-
-  @Nullable
-  SimpleExpression getExpression();
-
-  @Nullable
-  SimpleTypeName getTypeName();
-
-  @Nullable
-  PsiElement getAssign();
-
-  @Nullable
-  PsiElement getColon();
+public interface SimpleMemberAccessExpr extends SimpleNamedElement {
 
   @NotNull
-  PsiElement getIdentifier();
+  SimpleExpression getExpression();
+
+  @NotNull
+  SimpleMemberField getMemberField();
+
+  @NotNull
+  PsiElement getDot();
 
   String getKey();
 

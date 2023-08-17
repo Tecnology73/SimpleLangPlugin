@@ -8,6 +8,7 @@ import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.tree.TokenSet;
 import org.intellij.sdk.language.psi.SimpleTypeDeclaration;
 import org.intellij.sdk.language.psi.SimpleTypes;
+import org.intellij.sdk.language.psi.SimpleVariableDeclaration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,24 +42,31 @@ public class SimpleFindUsagesProvider implements FindUsagesProvider {
         if (element instanceof SimpleTypeDeclaration) {
             return "Typed Declaration";
         }
+
         return "";
     }
 
     @NotNull
     @Override
     public String getDescriptiveName(@NotNull PsiElement element) {
-        if (element instanceof SimpleTypeDeclaration) {
-            return ((SimpleTypeDeclaration) element).getName();
+        if (element instanceof SimpleTypeDeclaration typeDeclaration) {
+            return typeDeclaration.getName();
+        } else if (element instanceof SimpleVariableDeclaration variableDeclaration) {
+            return variableDeclaration.getName();
         }
+
         return "";
     }
 
     @NotNull
     @Override
     public String getNodeText(@NotNull PsiElement element, boolean useFullName) {
-        if (element instanceof SimpleTypeDeclaration) {
-            return ((SimpleTypeDeclaration) element).getName();
+        if (element instanceof SimpleTypeDeclaration typeDeclaration) {
+            return typeDeclaration.getName();
+        } else if (element instanceof SimpleVariableDeclaration variableDeclaration) {
+            return variableDeclaration.getName();
         }
+
         return "";
     }
 

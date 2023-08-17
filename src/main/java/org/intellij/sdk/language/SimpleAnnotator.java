@@ -2,21 +2,82 @@
 
 package org.intellij.sdk.language;
 
-import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.lang.annotation.HighlightSeverity;
-import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiLiteralExpression;
-import org.intellij.sdk.language.psi.SimpleTypeDeclaration;
+import org.intellij.sdk.language.psi.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import static org.intellij.sdk.language.SimpleSyntaxHighlighterColors.*;
+
 
 public class SimpleAnnotator implements Annotator {
     @Override
     public void annotate(@NotNull final PsiElement element, @NotNull AnnotationHolder holder) {
+        if (element instanceof SimpleTypeDeclaration typeElement) {
+            holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+                    .range(typeElement.getTypeName())
+                    .textAttributes(TYPE_NAME)
+                    .create();
+        } else if (element instanceof SimpleConstructorCall callElement) {
+            holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+                    .range(callElement.getTypeName())
+                    .textAttributes(TYPE_NAME)
+                    .create();
+        } /*else if (element instanceof SimpleFunctionCall callElement) {
+            holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+                    .range(callElement.getIdentifier())
+                    .textAttributes(INSTANCE_METHOD)
+                    .create();
+        }*/ else if (element instanceof SimpleFunction functionElement) {
+            SimpleGeneric generic = functionElement.getGeneric();
+            if (generic != null) {
+                holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+                        .range(generic.getTypeName())
+                        .textAttributes(TYPE_NAME)
+                        .create();
+            }
+
+            SimpleTypeName typeName = functionElement.getTypeName();
+            if (typeName != null) {
+                holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+                        .range(typeName)
+                        .textAttributes(TYPE_NAME)
+                        .create();
+            }
+        } else if (element instanceof SimpleMemberAccessExpr memberAccessExpr) {
+            holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+                    .range(memberAccessExpr.getMemberField())
+                    .textAttributes(MEMBER)
+                    .create();
+
+            PsiElement expr = memberAccessExpr.getExpression().getFirstChild();
+            if (expr instanceof SimpleFunctionCall functionCall) {
+                holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+                        .range(functionCall.getIdentifier())
+                        .textAttributes(INSTANCE_METHOD)
+                        .create();
+            } else {
+                holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+                        .range(expr.getTextRange())
+                        .textAttributes(INSTANCE_FIELD)
+                        .create();
+            }
+        } else if (element instanceof SimpleVariableDeclaration variableDeclaration) {
+            holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+                    .range(variableDeclaration.getIdentifier())
+                    .textAttributes(MEMBER)
+                    .create();
+
+
+            SimpleTypeName typeName = variableDeclaration.getTypeName();
+            if (typeName != null) {
+                holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+                        .range(typeName)
+                        .textAttributes(TYPE_NAME)
+                        .create();
+            }
+        }
     }
 }

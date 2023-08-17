@@ -12,50 +12,20 @@ import org.intellij.sdk.language.psi.*;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiReference;
 
-public class SimpleFunctionImpl extends SimpleNamedElementImpl implements SimpleFunction {
+public class SimpleTypeNameImpl extends SimpleNamedElementImpl implements SimpleTypeName {
 
-  public SimpleFunctionImpl(@NotNull ASTNode node) {
+  public SimpleTypeNameImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull SimpleVisitor visitor) {
-    visitor.visitFunction(this);
+    visitor.visitTypeName(this);
   }
 
   @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof SimpleVisitor) accept((SimpleVisitor)visitor);
     else super.accept(visitor);
-  }
-
-  @Override
-  @NotNull
-  public SimpleBlock getBlock() {
-    return findNotNullChildByClass(SimpleBlock.class);
-  }
-
-  @Override
-  @Nullable
-  public SimpleGeneric getGeneric() {
-    return findChildByClass(SimpleGeneric.class);
-  }
-
-  @Override
-  @NotNull
-  public SimpleParameters getParameters() {
-    return findNotNullChildByClass(SimpleParameters.class);
-  }
-
-  @Override
-  @Nullable
-  public SimpleTypeName getTypeName() {
-    return findChildByClass(SimpleTypeName.class);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getFunc() {
-    return findNotNullChildByType(FUNC);
   }
 
   @Override

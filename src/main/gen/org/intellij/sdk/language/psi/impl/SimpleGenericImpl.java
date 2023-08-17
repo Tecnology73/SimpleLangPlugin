@@ -11,14 +11,14 @@ import static org.intellij.sdk.language.psi.SimpleTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.intellij.sdk.language.psi.*;
 
-public class SimpleExpressionImpl extends ASTWrapperPsiElement implements SimpleExpression {
+public class SimpleGenericImpl extends ASTWrapperPsiElement implements SimpleGeneric {
 
-  public SimpleExpressionImpl(@NotNull ASTNode node) {
+  public SimpleGenericImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull SimpleVisitor visitor) {
-    visitor.visitExpression(this);
+    visitor.visitGeneric(this);
   }
 
   @Override
@@ -28,27 +28,21 @@ public class SimpleExpressionImpl extends ASTWrapperPsiElement implements Simple
   }
 
   @Override
-  @Nullable
-  public SimpleBaseExpression getBaseExpression() {
-    return findChildByClass(SimpleBaseExpression.class);
+  @NotNull
+  public SimpleTypeName getTypeName() {
+    return findNotNullChildByClass(SimpleTypeName.class);
   }
 
   @Override
-  @Nullable
-  public SimpleConstructorCall getConstructorCall() {
-    return findChildByClass(SimpleConstructorCall.class);
+  @NotNull
+  public PsiElement getGreaterThan() {
+    return findNotNullChildByType(GREATER_THAN);
   }
 
   @Override
-  @Nullable
-  public SimpleFunctionCall getFunctionCall() {
-    return findChildByClass(SimpleFunctionCall.class);
-  }
-
-  @Override
-  @Nullable
-  public SimpleMemberAccessExpr getMemberAccessExpr() {
-    return findChildByClass(SimpleMemberAccessExpr.class);
+  @NotNull
+  public PsiElement getLessThan() {
+    return findNotNullChildByType(LESS_THAN);
   }
 
 }

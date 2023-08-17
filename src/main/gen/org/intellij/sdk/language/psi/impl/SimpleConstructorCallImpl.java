@@ -9,6 +9,7 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.intellij.sdk.language.psi.SimpleTypes.*;
 import org.intellij.sdk.language.psi.*;
+import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiReference;
 
 public class SimpleConstructorCallImpl extends SimpleNamedElementImpl implements SimpleConstructorCall {
@@ -35,8 +36,8 @@ public class SimpleConstructorCallImpl extends SimpleNamedElementImpl implements
 
   @Override
   @NotNull
-  public PsiElement getIdentifier() {
-    return findNotNullChildByType(IDENTIFIER);
+  public SimpleTypeName getTypeName() {
+    return findNotNullChildByClass(SimpleTypeName.class);
   }
 
   @Override
@@ -63,6 +64,11 @@ public class SimpleConstructorCallImpl extends SimpleNamedElementImpl implements
   @Override
   public PsiElement getNameIdentifier() {
     return SimplePsiImplUtil.getNameIdentifier(this);
+  }
+
+  @Override
+  public ItemPresentation getPresentation() {
+    return SimplePsiImplUtil.getPresentation(this);
   }
 
   @Override

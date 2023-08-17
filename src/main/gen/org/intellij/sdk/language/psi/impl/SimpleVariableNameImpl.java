@@ -11,14 +11,14 @@ import static org.intellij.sdk.language.psi.SimpleTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.intellij.sdk.language.psi.*;
 
-public class SimpleExpressionImpl extends ASTWrapperPsiElement implements SimpleExpression {
+public class SimpleVariableNameImpl extends ASTWrapperPsiElement implements SimpleVariableName {
 
-  public SimpleExpressionImpl(@NotNull ASTNode node) {
+  public SimpleVariableNameImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull SimpleVisitor visitor) {
-    visitor.visitExpression(this);
+    visitor.visitVariableName(this);
   }
 
   @Override
@@ -28,27 +28,9 @@ public class SimpleExpressionImpl extends ASTWrapperPsiElement implements Simple
   }
 
   @Override
-  @Nullable
-  public SimpleBaseExpression getBaseExpression() {
-    return findChildByClass(SimpleBaseExpression.class);
-  }
-
-  @Override
-  @Nullable
-  public SimpleConstructorCall getConstructorCall() {
-    return findChildByClass(SimpleConstructorCall.class);
-  }
-
-  @Override
-  @Nullable
-  public SimpleFunctionCall getFunctionCall() {
-    return findChildByClass(SimpleFunctionCall.class);
-  }
-
-  @Override
-  @Nullable
-  public SimpleMemberAccessExpr getMemberAccessExpr() {
-    return findChildByClass(SimpleMemberAccessExpr.class);
+  @NotNull
+  public PsiElement getIdentifier() {
+    return findNotNullChildByType(IDENTIFIER);
   }
 
 }

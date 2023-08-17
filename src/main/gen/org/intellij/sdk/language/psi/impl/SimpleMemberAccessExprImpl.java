@@ -12,14 +12,14 @@ import org.intellij.sdk.language.psi.*;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiReference;
 
-public class SimpleFunctionImpl extends SimpleNamedElementImpl implements SimpleFunction {
+public class SimpleMemberAccessExprImpl extends SimpleNamedElementImpl implements SimpleMemberAccessExpr {
 
-  public SimpleFunctionImpl(@NotNull ASTNode node) {
+  public SimpleMemberAccessExprImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull SimpleVisitor visitor) {
-    visitor.visitFunction(this);
+    visitor.visitMemberAccessExpr(this);
   }
 
   @Override
@@ -30,38 +30,20 @@ public class SimpleFunctionImpl extends SimpleNamedElementImpl implements Simple
 
   @Override
   @NotNull
-  public SimpleBlock getBlock() {
-    return findNotNullChildByClass(SimpleBlock.class);
-  }
-
-  @Override
-  @Nullable
-  public SimpleGeneric getGeneric() {
-    return findChildByClass(SimpleGeneric.class);
+  public SimpleExpression getExpression() {
+    return findNotNullChildByClass(SimpleExpression.class);
   }
 
   @Override
   @NotNull
-  public SimpleParameters getParameters() {
-    return findNotNullChildByClass(SimpleParameters.class);
-  }
-
-  @Override
-  @Nullable
-  public SimpleTypeName getTypeName() {
-    return findChildByClass(SimpleTypeName.class);
+  public SimpleMemberField getMemberField() {
+    return findNotNullChildByClass(SimpleMemberField.class);
   }
 
   @Override
   @NotNull
-  public PsiElement getFunc() {
-    return findNotNullChildByType(FUNC);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getIdentifier() {
-    return findNotNullChildByType(IDENTIFIER);
+  public PsiElement getDot() {
+    return findNotNullChildByType(DOT);
   }
 
   @Override

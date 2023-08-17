@@ -8,6 +8,8 @@ import com.intellij.psi.PsiFileFactory;
 import org.intellij.sdk.language.SimpleFileType;
 import org.intellij.sdk.language.psi.impl.SimpleTypeDeclarationImpl;
 
+import static org.intellij.sdk.language.psi.SimpleTypes.IDENTIFIER;
+
 public class SimpleElementFactory {
     public static SimpleFile createFile(Project project, String text) {
         return (SimpleFile) PsiFileFactory.getInstance(project).createFileFromText("d.simple", SimpleFileType.INSTANCE, text);
@@ -15,6 +17,6 @@ public class SimpleElementFactory {
 
     public static PsiElement createIdentifier(Project project, String name) {
         final SimpleFile file = createFile(project, "type " + name + "{}");
-        return ((SimpleTypeDeclarationImpl) file.getFirstChild()).getIdentifier();
+        return ((SimpleTypeDeclarationImpl) file.getFirstChild()).getNameIdentifier();
     }
 }

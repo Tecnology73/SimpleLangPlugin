@@ -12,14 +12,14 @@ import org.intellij.sdk.language.psi.*;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiReference;
 
-public class SimpleFunctionImpl extends SimpleNamedElementImpl implements SimpleFunction {
+public class SimpleFunctionCallImpl extends SimpleNamedElementImpl implements SimpleFunctionCall {
 
-  public SimpleFunctionImpl(@NotNull ASTNode node) {
+  public SimpleFunctionCallImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull SimpleVisitor visitor) {
-    visitor.visitFunction(this);
+    visitor.visitFunctionCall(this);
   }
 
   @Override
@@ -30,32 +30,8 @@ public class SimpleFunctionImpl extends SimpleNamedElementImpl implements Simple
 
   @Override
   @NotNull
-  public SimpleBlock getBlock() {
-    return findNotNullChildByClass(SimpleBlock.class);
-  }
-
-  @Override
-  @Nullable
-  public SimpleGeneric getGeneric() {
-    return findChildByClass(SimpleGeneric.class);
-  }
-
-  @Override
-  @NotNull
-  public SimpleParameters getParameters() {
-    return findNotNullChildByClass(SimpleParameters.class);
-  }
-
-  @Override
-  @Nullable
-  public SimpleTypeName getTypeName() {
-    return findChildByClass(SimpleTypeName.class);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getFunc() {
-    return findNotNullChildByType(FUNC);
+  public SimpleArguments getArguments() {
+    return findNotNullChildByClass(SimpleArguments.class);
   }
 
   @Override

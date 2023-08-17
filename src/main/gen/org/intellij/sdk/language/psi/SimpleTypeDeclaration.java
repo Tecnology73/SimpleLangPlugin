@@ -13,10 +13,12 @@ public interface SimpleTypeDeclaration extends SimpleNamedElement {
   SimpleBlock getBlock();
 
   @NotNull
-  PsiElement getType_();
+  SimpleTypeName getTypeName();
 
   @NotNull
-  PsiElement getIdentifier();
+  PsiElement getType_();
+
+  String getKey();
 
   String getName();
 

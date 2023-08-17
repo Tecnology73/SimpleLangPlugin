@@ -36,14 +36,19 @@ public class SimpleTypeDeclarationImpl extends SimpleNamedElementImpl implements
 
   @Override
   @NotNull
+  public SimpleTypeName getTypeName() {
+    return findNotNullChildByClass(SimpleTypeName.class);
+  }
+
+  @Override
+  @NotNull
   public PsiElement getType_() {
     return findNotNullChildByType(TYPE_);
   }
 
   @Override
-  @NotNull
-  public PsiElement getIdentifier() {
-    return findNotNullChildByType(IDENTIFIER);
+  public String getKey() {
+    return SimplePsiImplUtil.getKey(this);
   }
 
   @Override

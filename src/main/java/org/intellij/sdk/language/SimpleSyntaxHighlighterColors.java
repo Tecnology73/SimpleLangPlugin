@@ -3,6 +3,7 @@ package org.intellij.sdk.language;
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import kotlin.random.Random;
 
 import static com.intellij.openapi.editor.colors.TextAttributesKey.createTextAttributesKey;
 
@@ -21,5 +22,9 @@ public class SimpleSyntaxHighlighterColors {
     public static final TextAttributesKey SEMICOLON = createTextAttributesKey("SIMPLE_SEMICOLON", DefaultLanguageHighlighterColors.SEMICOLON);
     public static final TextAttributesKey COLON = createTextAttributesKey("SIMPLE_COLON", HighlighterColors.TEXT);
     public static final TextAttributesKey COMMA = createTextAttributesKey("SIMPLE_COMMA", DefaultLanguageHighlighterColors.COMMA);
+    public static final TextAttributesKey TYPE_NAME = createTextAttributesKey("SIMPLE_TYPE_NAME", DefaultLanguageHighlighterColors.CLASS_NAME);
     public static final TextAttributesKey BAD_CHARACTER = createTextAttributesKey("SIMPLE_BAD_CHARACTER", HighlighterColors.BAD_CHARACTER);
+    public static final TextAttributesKey MEMBER = createTextAttributesKey("SIMPLE_MEMBER", DefaultLanguageHighlighterColors.CLASS_REFERENCE);
+    public static final TextAttributesKey INSTANCE_FIELD = createTextAttributesKey("SIMPLE_INSTANCE_FIELD", DefaultLanguageHighlighterColors.INSTANCE_FIELD);
+    public static final TextAttributesKey INSTANCE_METHOD = createTextAttributesKey("SIMPLE_INSTANCE_METHOD", DefaultLanguageHighlighterColors.INSTANCE_METHOD);
 }

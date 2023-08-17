@@ -28,6 +28,9 @@
     DOT = '.'
     DOUBLE_DOT = '..'
 
+    LESS_THAN = '<'
+    GREATER_THAN = '>'
+
     ASSIGN = "="
     EQUAL = "=="
 
@@ -38,9 +41,10 @@
   generateTokenAccessors=true
 }
 
+//program ::= identifier '.' Expression semi
 program ::= TopLevelDeclaration*
 
-private semi ::= '<NL>' | ';' | <<eof>>
+private semi ::= SEMICOLON_SYNTHETIC | SEMICOLON | <<eof>>
 
 private TopLevelDeclaration ::= !<<eof>> TopDeclaration semi {pin=1 recoverWhile=TopLevelDeclarationRecover}
 private TopDeclaration ::=
@@ -48,16 +52,30 @@ private TopDeclaration ::=
     | Function
 private TopLevelDeclarationRecover ::= !(SEMICOLON | TYPE_ | func)
 
-Parameters ::= LPAREN (identifier COLON identifier COMMA?)* RPAREN
-Arguments ::= LPAREN (Literal COMMA?)* RPAREN
-
-TypeDeclaration ::= TYPE_ identifier Block
+VariableName ::= identifier
+TypeName ::= identifier
 {
     mixin="org.intellij.sdk.language.psi.impl.SimpleNamedElementImpl"
     implements="org.intellij.sdk.language.psi.SimpleNamedElement"
-    methods=[getName setName getNameIdentifier getPresentation getReference]
+    methods=[getKey getName setName getNameIdentifier getPresentation getReference]
 }
-Function ::= func identifier Parameters identifier? Block
+
+Parameters ::= LPAREN (identifier COLON identifier COMMA?)* RPAREN
+Arguments ::= LPAREN (Literal COMMA?)* RPAREN
+Generic ::= LESS_THAN TypeName GREATER_THAN
+
+TypeDeclaration ::= TYPE_ TypeName Block
+{
+    mixin="org.intellij.sdk.language.psi.impl.SimpleNamedElementImpl"
+    implements="org.intellij.sdk.language.psi.SimpleNamedElement"
+    methods=[getKey getName setName getNameIdentifier getPresentation getReference]
+}
+Function ::= func Generic? identifier Parameters TypeName? Block
+{
+    mixin="org.intellij.sdk.language.psi.impl.SimpleNamedElementImpl"
+    implements="org.intellij.sdk.language.psi.SimpleNamedElement"
+    methods=[getKey getName setName getNameIdentifier getPresentation getReference]
+}
 
 Block ::= LBRACE Statement* RBRACE
 
@@ -65,23 +83,55 @@ Statement ::= (
       ReturnStatement
     | VariableDeclaration
     | ConstructorCall
+    | FunctionCall
+    | MemberAccessExpr
 ) semi
 
 private Literal ::=
       int
     | identifier
 
-Expression ::= Literal | ConstructorCall
+Expression ::=
+      FunctionCall
+    | ConstructorCall
+    | MemberAccessExpr
+    | BaseExpression
+
+BaseExpression ::= identifier
+                | Literal
 
 ReturnStatement ::= return Expression? // return expr
-VariableDeclaration ::=
-      identifier (COLON identifier)? ASSIGN Expression  // a: T = value
-    | identifier COLON identifier                       // a: T
-    | identifier ASSIGN Expression                      // A = value
-ConstructorCall ::=
-    new identifier Arguments // new T(...)
+VariableDeclaration ::= identifier (
+      COLON TypeName ASSIGN Expression   // a: T = value
+    | COLON TypeName                     // a: T
+    | ASSIGN Expression)                 // a = value
 {
     mixin="org.intellij.sdk.language.psi.impl.SimpleNamedElementImpl"
     implements="org.intellij.sdk.language.psi.SimpleNamedElement"
-    methods=[getKey getName setName getNameIdentifier getReference]
+    methods=[getKey getName setName getNameIdentifier getPresentation getReference]
+}
+ConstructorCall ::= new TypeName Arguments // new T(...)
+{
+    mixin="org.intellij.sdk.language.psi.impl.SimpleNamedElementImpl"
+    implements="org.intellij.sdk.language.psi.SimpleNamedElement"
+    methods=[getKey getName setName getNameIdentifier getPresentation getReference]
+}
+FunctionCall ::= identifier Arguments // func(...)
+{
+    mixin="org.intellij.sdk.language.psi.impl.SimpleNamedElementImpl"
+    implements="org.intellij.sdk.language.psi.SimpleNamedElement"
+    methods=[getKey getName setName getNameIdentifier getPresentation getReference]
+}
+
+MemberField ::= identifier
+{
+    mixin="org.intellij.sdk.language.psi.impl.SimpleNamedElementImpl"
+    implements="org.intellij.sdk.language.psi.SimpleNamedElement"
+    methods=[getKey getName setName getNameIdentifier getPresentation getReference]
+}
+MemberAccessExpr ::= MemberField '.' Expression
+{
+    mixin="org.intellij.sdk.language.psi.impl.SimpleNamedElementImpl"
+    implements="org.intellij.sdk.language.psi.SimpleNamedElement"
+    methods=[getKey getName setName getNameIdentifier getPresentation getReference]
 }

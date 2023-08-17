@@ -30,7 +30,7 @@ public class SimpleParserDefinition implements ParserDefinition {
     public static final TokenSet KEYWORDS = TokenSet.create(
             SimpleTypes.FUNC, SimpleTypes.RETURN, SimpleTypes.TYPE_, SimpleTypes.NEW);
     public static final TokenSet OPERATORS = TokenSet.create(
-            SimpleTypes.EQUAL, SimpleTypes.ASSIGN);
+            SimpleTypes.EQUAL, SimpleTypes.ASSIGN, SimpleTypes.LESS_THAN, SimpleTypes.GREATER_THAN);
 
     public static final IFileElementType FILE = new IFileElementType(SimpleLanguage.INSTANCE);
 

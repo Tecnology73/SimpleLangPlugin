@@ -10,6 +10,7 @@ import com.intellij.util.Processor;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.indexing.FindSymbolParameters;
 import com.intellij.util.indexing.IdFilter;
+import org.intellij.sdk.language.psi.SimpleNamedElement;
 import org.intellij.sdk.language.psi.SimpleTypeDeclaration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,14 +19,16 @@ import java.util.List;
 import java.util.Objects;
 
 public class SimpleChooseByNameContributor implements ChooseByNameContributorEx {
-
     @Override
     public void processNames(@NotNull Processor<? super String> processor,
                              @NotNull GlobalSearchScope scope,
                              @Nullable IdFilter filter) {
         Project project = Objects.requireNonNull(scope.getProject());
         List<String> propertyKeys = ContainerUtil.map(
-                SimpleUtil.findTypeDeclarations(project), SimpleTypeDeclaration::getName);
+                SimpleUtil.findDeclarations(project, SimpleTypeDeclaration.class),
+                SimpleNamedElement::getName
+        );
+
         ContainerUtil.process(propertyKeys, processor);
     }
 
@@ -34,9 +37,10 @@ public class SimpleChooseByNameContributor implements ChooseByNameContributorEx 
                                         @NotNull Processor<? super NavigationItem> processor,
                                         @NotNull FindSymbolParameters parameters) {
         List<NavigationItem> properties = ContainerUtil.map(
-                SimpleUtil.findTypeDeclarations(parameters.getProject(), name),
-                property -> (NavigationItem) property);
+                SimpleUtil.findDeclarations(parameters.getProject(), name, SimpleNamedElement.class),
+                property -> (NavigationItem) property
+        );
+
         ContainerUtil.process(properties, processor);
     }
-
 }

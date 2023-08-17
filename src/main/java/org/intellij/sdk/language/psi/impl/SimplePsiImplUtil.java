@@ -7,10 +7,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.openapi.util.TextRange;
 import org.intellij.sdk.language.SimpleReference;
-import org.intellij.sdk.language.psi.SimpleConstructorCall;
-import org.intellij.sdk.language.psi.SimpleElementFactory;
-import org.intellij.sdk.language.psi.SimpleTypeDeclaration;
-import org.intellij.sdk.language.psi.SimpleTypes;
+import org.intellij.sdk.language.psi.*;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -18,6 +15,10 @@ import javax.swing.*;
 public class SimplePsiImplUtil {
     public static String getKey(SimpleNamedElementImpl element) {
         ASTNode keyNode = element.getNode().findChildByType(SimpleTypes.IDENTIFIER);
+        if (keyNode == null) {
+            keyNode = element.getNode().findChildByType(SimpleTypes.TYPE_NAME);
+        }
+
         if (keyNode != null) {
             return keyNode.getText();
         }
@@ -31,6 +32,10 @@ public class SimplePsiImplUtil {
 
     public static PsiElement setName(SimpleNamedElementImpl element, String newName) {
         ASTNode keyNode = element.getNode().findChildByType(SimpleTypes.IDENTIFIER);
+        if (keyNode == null) {
+            keyNode = element.getNode().findChildByType(SimpleTypes.TYPE_NAME);
+        }
+
         if (keyNode != null) {
             PsiElement newElement = SimpleElementFactory.createIdentifier(element.getProject(), newName);
             ASTNode newNode = newElement.getNode();
@@ -43,7 +48,13 @@ public class SimplePsiImplUtil {
     }
 
     public static PsiElement getNameIdentifier(SimpleNamedElementImpl element) {
-        ASTNode keyNode = element.getNode().findChildByType(SimpleTypes.IDENTIFIER);
+        ASTNode keyNode;
+        if (element instanceof SimpleTypeDeclaration typeDeclaration) {
+            keyNode = element.getNode().findChildByType(SimpleTypes.TYPE_NAME);
+        } else {
+            keyNode = element.getNode().findChildByType(SimpleTypes.IDENTIFIER);
+        }
+
         if (keyNode != null) {
             return keyNode.getPsi();
         }
@@ -52,7 +63,24 @@ public class SimplePsiImplUtil {
     }
 
     public static PsiReference getReference(SimpleNamedElementImpl element) {
-        ASTNode keyNode = element.getNode().findChildByType(SimpleTypes.IDENTIFIER);
+        ASTNode keyNode = null;
+        if (element instanceof SimpleConstructorCall constructorCall) {
+            keyNode = constructorCall.getTypeName().getNode();
+        } else if (element instanceof SimpleTypeDeclaration typeDeclaration) {
+            keyNode = typeDeclaration.getNameIdentifier().getNode();
+        } else if (element instanceof SimpleFunction function) {
+            SimpleGeneric generic = function.getGeneric();
+            if (generic != null) {
+                keyNode = generic.getTypeName().getNode();
+            }
+        } else if (element instanceof SimpleFunctionCall functionCall) {
+            keyNode = functionCall.getIdentifier().getNode();
+        } else if (element instanceof SimpleVariableDeclaration variableDeclaration) {
+            keyNode = variableDeclaration.getIdentifier().getNode();
+        } else {
+            keyNode = element.getNode().findChildByType(SimpleTypes.IDENTIFIER);
+        }
+
         if (keyNode != null) {
             int startOffset = keyNode.getStartOffset() - element.getTextRange().getStartOffset();
             TextRange range = new TextRange(startOffset, startOffset + keyNode.getTextLength());

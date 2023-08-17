@@ -11,6 +11,12 @@ public interface SimpleStatement extends PsiElement {
   SimpleConstructorCall getConstructorCall();
 
   @Nullable
+  SimpleFunctionCall getFunctionCall();
+
+  @Nullable
+  SimpleMemberAccessExpr getMemberAccessExpr();
+
+  @Nullable
   SimpleReturnStatement getReturnStatement();
 
   @Nullable
