@@ -26,47 +26,20 @@
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
         <fileType
-                name="Simple File"
-                implementationClass="org.intellij.sdk.language.SimpleFileType"
+                name="Simple Language"
+                implementationClass="com.example.sampleplugin.SimpleFileType"
                 fieldName="INSTANCE"
                 language="Simple"
                 extensions="simple"/>
 
         <lang.parserDefinition
                 language="Simple"
-                implementationClass="org.intellij.sdk.language.psi.SimpleParserDefinition"/>
+                implementationClass="com.example.sampleplugin.SimpleParserDefinition"/>
 
         <lang.syntaxHighlighterFactory
                 language="Simple"
-                implementationClass="org.intellij.sdk.language.SimpleSyntaxHighlighterFactory"/>
+                implementationClass="com.example.sampleplugin.syntax.SimpleSyntaxHighlighterFactory"/>
 
-        <colorSettingsPage implementation="org.intellij.sdk.language.SimpleColorSettingsPage"/>
-
-        <completion.contributor
-                language="Simple"
-                implementationClass="org.intellij.sdk.language.SimpleCompletionContributor"/>
-
-        <psi.referenceContributor
-                language="Simple"
-                implementation="org.intellij.sdk.language.SimpleReferenceContributor"/>
-
-        <lang.refactoringSupport
-                language="Simple"
-                implementationClass="org.intellij.sdk.language.SimpleRefactoringSupportProvider"/>
-
-        <gotoSymbolContributor
-                implementation="org.intellij.sdk.language.SimpleChooseByNameContributor"/>
-
-        <lang.findUsagesProvider
-                language="Simple"
-                implementationClass="org.intellij.sdk.language.SimpleFindUsagesProvider"/>
-
-        <lang.elementManipulator
-                forClass="org.intellij.sdk.language.psi.impl.SimpleNamedElementImpl"
-                implementationClass="org.intellij.sdk.language.NamedElementManipulator"/>
-
-        <annotator
-                language="Simple"
-                implementationClass="org.intellij.sdk.language.SimpleAnnotator"/>
+        <colorSettingsPage implementation="com.example.sampleplugin.syntax.SimpleColorSettingsPage"/>
     </extensions>
 </idea-plugin>

@@ -1,0 +1,178 @@
+{
+  parserClass="com.example.sampleplugin.parser.SimpleParser"
+//  parserUtilClass="com.example.sampleplugin.parser.SimpleParserUtil"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="Simple"
+  psiImplClassSuffix="Impl"
+  psiPackage="com.example.sampleplugin.psi"
+  psiImplPackage="com.example.sampleplugin.psi.impl"
+
+  elementTypeHolderClass="com.example.sampleplugin.psi.SimpleTypes"
+  elementTypeClass="com.example.sampleplugin.psi.SimpleElementType"
+  tokenTypeClass="com.example.sampleplugin.psi.SimpleTokenType"
+
+  psiImplUtilClass="com.example.sampleplugin.psi.impl.SimplePsiImplUtil"
+
+  extends(".*Expr")=Expression
+
+  tokens=[
+    LINE_COMMENT="regexp://.*"
+    BLOCK_COMMENT="regexp:/\*.*?\*/"
+
+    // Characters
+    COLON=':'
+    COLONCOLON='::'
+    DOT='.'
+    DOTDOT='..'
+    COMMA=','
+    SEMICOLON=';'
+    LCURLY='{'
+    RCURLY='}'
+    LBRACK='['
+    RBRACK=']'
+    LPAREN='('
+    RPAREN=')'
+
+    // Operators
+    PLUS='+'
+    PLUSEQ='+='
+    MINUS='-'
+    MINUSEQ='-='
+    MUL='*'
+    MULEQ='*='
+    DIV='/'
+    DIVEQ='/='
+    EQ='='
+    LANGLE='<'
+    LE='<='
+    RANGLE='>'
+    GE='>='
+    EQEQ='=='
+    NE='!='
+    AND='&&'
+    OR='||'
+    NOT='!'
+
+    // Keywords
+    NEW_KW='new'
+    FUNC_KW='func'
+    TYPE_KW='type'
+    RETURN_KW='return'
+//    BREAK_KW='break'
+//    CONTINUE_KW='continue'
+//    IF_KW='if'
+//    ELSE_KW='else'
+//    FOR_KW='for'
+//    AS_KW='as'
+//    STEP_KW='step'
+//    IMPORT_KW='import'
+
+//    VALUE_STRING="regexp:(\"[A-Za-z_][A-Za-z0-9_]*\"|'[A-Za-z_][A-Za-z0-9_]*')"
+    VALUE_NULL="regexp:null|NULL"
+    VALUE_BOOL="regexp:true|false"
+    VALUE_INTEGER="regexp:[0-9]+"
+    // .0f 0.0f
+    VALUE_FLOAT="regexp:([-]?[0-9]*\.[0-9]+([Ee][+\-]?[0-9]+)?f|[-]?[0-9]+([Ee][+\-]?[0-9]+)?f)"
+
+    ID="regexp:[a-zA-Z_][a-zA-Z_0-9]*"
+  ]
+
+  generateTokenAccessors=true
+  implements("Type|FunctionId")="com.example.sampleplugin.psi.SimpleNamedElement"
+  extends("Type|FunctionId")="com.example.sampleplugin.psi.impl.SimpleNamedElementImpl"
+}
+
+program ::= TopLevelDeclaration*
+
+TopLevelDeclaration ::= !<<eof>> (TypeDeclaration | FunctionDeclaration) {pin=1 recoverWhile=TopLevelDeclarationRecover}
+private TopLevelDeclarationRecover ::= !(SEMICOLON | TYPE_KW | FUNC_KW)
+
+Type ::= ID { methods=[getReference] }
+
+// (a: T(, b: T)?)
+Parameters ::= LPAREN (Parameter (COMMA Parameter)*)? RPAREN
+Parameter ::= ID COLON ID (EQ Expression)?
+
+// (a, b)
+Arguments ::= LPAREN (Expression (COMMA Expression)*)? RPAREN
+
+Generic ::= LANGLE ID RANGLE
+
+TypeDeclaration ::= TYPE_KW ID TypeBlock
+{
+    mixin="com.example.sampleplugin.psi.impl.SimpleNamedElementImpl"
+    implements="com.example.sampleplugin.psi.SimpleNamedElement"
+    methods=[getName getNameIdentifier getReference]
+}
+TypeBlock ::= LCURLY TypeField* RCURLY
+TypeField ::= ID (
+        COLON ID EQ ValueExpr   // a: T = value
+      | COLON ID                    // a: T
+      | EQ ValueExpr            // a = value
+) SEMICOLON
+
+Block ::= LCURLY Statement* RCURLY
+
+FunctionReceiver ::= LANGLE ID RANGLE
+FunctionId ::= ID { methods=[getReference] }
+FunctionDeclaration ::= FUNC_KW FunctionReceiver? FunctionId Generic? Parameters ID? Block
+{
+    pin=6
+    recoverWhile=FunctionDeclarationRecover
+    extends="com.example.sampleplugin.psi.impl.SimpleFunctionImpl"
+    implements="com.example.sampleplugin.psi.SimpleFunction"
+    methods=[getName getNameIdentifier getReference]
+}
+private FunctionDeclarationRecover ::= !(RCURLY | FUNC_KW | TYPE_KW)
+
+Statement ::=
+      ReturnStatement
+    | VariableDeclaration
+    | Expression SEMICOLON
+
+Expression ::=
+      AssignExpr
+    | CallGroup
+    | MemberAccessExpr
+    | ValueExpr
+
+ValueExpr ::=
+      ConstructorCall
+    | VALUE_INTEGER
+    | VALUE_FLOAT
+    | VALUE_NULL
+    | VALUE_BOOL
+    | ID
+
+private CallGroup ::= CallExpr | MemberCallExpr
+
+CallExpr ::= ID Arguments
+AssignExpr ::= Expression (EQ | PLUSEQ | MINUSEQ | MULEQ | DIVEQ) Expression {pin=1 rightAssociative=true}
+MemberCallExpr ::= MemberAccessExpr Arguments
+{
+    mixin="com.example.sampleplugin.psi.impl.SimpleMemberCallExprMixinImpl"
+    methods=[getReference]
+}
+
+ReturnStatement ::= RETURN_KW Expression? SEMICOLON // return expr
+
+VariableDeclaration ::= ID (
+      COLON ID EQ Expression   // a: T = value
+    | COLON ID                     // a: T
+    | EQ Expression                  // a = value
+) SEMICOLON
+
+ConstructorCall ::= NEW_KW ID Arguments // new T(...)
+
+FunctionCall ::= ID Arguments // func(...)
+
+MemberAccessExpr ::= Expression DOT ID
+{
+    pin=2
+    recoverWhile=MemberAccessExprRecover
+    extends="com.example.sampleplugin.psi.impl.SimpleMemberAccessExprMixinImpl"
+    methods=[getReference isCallExpression getLHS getRHS]
+}
+private MemberAccessExprRecover ::= !(DOT | SEMICOLON | RCURLY | ID | '\n')

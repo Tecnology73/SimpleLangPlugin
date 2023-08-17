@@ -4,7 +4,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiElementResolveResult
 import com.intellij.psi.ResolveState
 import com.intellij.psi.scope.PsiScopeProcessor
-import org.intellij.sdk.language.psi.*
+import com.example.sampleplugin.psi.*
 
 class DeclarationProcessor(private val reference: PsiElement) : PsiScopeProcessor {
     var locatedType: SimpleTypeDeclaration? = null
@@ -18,7 +18,6 @@ class DeclarationProcessor(private val reference: PsiElement) : PsiScopeProcesso
             is SimpleConstructorCall -> executeConstructorCall(reference, element, state)
             is SimpleFunction -> executeFunction(reference, element, state)
             is SimpleFunctionCall -> executeFunctionCall(reference, element, state)
-            is SimpleTypeName -> executeTypeName(reference, element, state)
 //            is SimpleMemberField -> executeMemberField(reference, element, state)
         }
 
@@ -26,15 +25,15 @@ class DeclarationProcessor(private val reference: PsiElement) : PsiScopeProcesso
     }
 
     private fun executeTypeDeclaration(reference: SimpleTypeDeclaration, element: PsiElement, state: ResolveState): Boolean {
-        if (element !is SimpleTypeName) {
+        /*if (element !is SimpleTypeName) {
             return true
-        }
+        }*/
 
-        if (element.name == reference.typeName.name) {
+        /*if (element.name == reference.typeName.name) {
             locatedType = element.parent as SimpleTypeDeclaration
             resolved = PsiElementResolveResult(element.identifier)
             return false
-        }
+        }*/
 
         return true
     }
@@ -48,22 +47,22 @@ class DeclarationProcessor(private val reference: PsiElement) : PsiScopeProcesso
             return true
         }
 
-        if (element.name == reference.typeName.name) {
+        /*if (element.name == reference.typeName.name) {
             locatedType = element
             resolved = PsiElementResolveResult(element.typeName)
             return false
-        }
+        }*/
 
         return true
     }
 
     private fun executeFunction(reference: SimpleFunction, element: PsiElement, state: ResolveState): Boolean {
-        if (element is SimpleTypeDeclaration) {
+        /*if (element is SimpleTypeDeclaration) {
             if (element.name == reference.functionReceiver?.typeName!!.name) {
                 resolved = PsiElementResolveResult(element)
                 return false
             }
-        }
+        }*/
 
         return true
     }
@@ -88,20 +87,6 @@ class DeclarationProcessor(private val reference: PsiElement) : PsiScopeProcesso
         if (constructorCall.typeName.name != target.functionReceiver?.typeName!!.name) {
             return true
         }*/
-
-        return true
-    }
-
-    private fun executeTypeName(reference: SimpleTypeName, element: PsiElement, state: ResolveState): Boolean {
-        if (element is SimpleTypeDeclaration) {
-            (reference.parent as? SimpleFunctionReceiver)?.let {
-                if (element.name == it.typeName.name) {
-                    locatedType = element
-                    resolved = PsiElementResolveResult(element.typeName)
-                    return false
-                }
-            }
-        }
 
         return true
     }
