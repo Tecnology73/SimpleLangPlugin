@@ -85,57 +85,58 @@
 }
 
 program ::= TopLevelDeclaration*
+TopLevelDeclaration ::= !<<eof>> (TypeDeclaration | FunctionDeclaration)
 
-TopLevelDeclaration ::= !<<eof>> (TypeDeclaration | FunctionDeclaration) {pin=1 recoverWhile=TopLevelDeclarationRecover}
-private TopLevelDeclarationRecover ::= !(SEMICOLON | TYPE_KW | FUNC_KW)
+Generic ::= LANGLE ID RANGLE {pin=1}
 
 Type ::= ID { methods=[getReference] }
-
-// (a: T(, b: T)?)
-Parameters ::= LPAREN (Parameter (COMMA Parameter)*)? RPAREN
-Parameter ::= ID COLON ID (EQ Expression)?
-
-// (a, b)
-Arguments ::= LPAREN (Expression (COMMA Expression)*)? RPAREN
-
-Generic ::= LANGLE ID RANGLE
-
-TypeDeclaration ::= TYPE_KW ID TypeBlock
+TypeDeclaration ::= TYPE_KW Type TypeBlock
 {
+    pin=1
     mixin="com.example.sampleplugin.psi.impl.SimpleNamedElementImpl"
     implements="com.example.sampleplugin.psi.SimpleNamedElement"
     methods=[getName getNameIdentifier getReference]
 }
-TypeBlock ::= LCURLY TypeField* RCURLY
-TypeField ::= ID (
-        COLON ID EQ ValueExpr   // a: T = value
-      | COLON ID                    // a: T
-      | EQ ValueExpr            // a = value
-) SEMICOLON
+TypeBlock ::= LCURLY (TypeField SEMICOLON)* RCURLY {pin=1}
+TypeField ::= ID (TypeFieldWithType | TypeFieldWithoutType)
+private TypeFieldWithType ::= COLON ID (EQ Expression)? {pin=1}
+private TypeFieldWithoutType ::= EQ Expression {pin=1}
 
-Block ::= LCURLY Statement* RCURLY
+Block ::= LCURLY Statement* RCURLY {pin=1}
 
-FunctionReceiver ::= LANGLE ID RANGLE
+FunctionReceiver ::= LANGLE ID RANGLE {pin=1}
 FunctionId ::= ID { methods=[getReference] }
+Parameters ::= LPAREN (Parameter (COMMA Parameter)*)? RPAREN {pin=1}
+Parameter ::= ID COLON ID (EQ Expression)? {pin=1}
 FunctionDeclaration ::= FUNC_KW FunctionReceiver? FunctionId Generic? Parameters ID? Block
 {
-    pin=6
-    recoverWhile=FunctionDeclarationRecover
+    pin=1
     extends="com.example.sampleplugin.psi.impl.SimpleFunctionImpl"
     implements="com.example.sampleplugin.psi.SimpleFunction"
     methods=[getName getNameIdentifier getReference]
 }
-private FunctionDeclarationRecover ::= !(RCURLY | FUNC_KW | TYPE_KW)
 
-Statement ::=
+Statement ::= (
       ReturnStatement
     | VariableDeclaration
-    | Expression SEMICOLON
+    | Expression
+) SEMICOLON {pin=1}
+
+ReturnStatement ::= RETURN_KW Expression? {pin=1}
+
+VariableDeclaration ::= ID (VarDeclWithType | VarDeclWithoutType)
+private VarDeclWithType ::= COLON ID (EQ Expression)? {pin=1}
+private VarDeclWithoutType ::= EQ Expression {pin=1}
+
 
 Expression ::=
-      AssignExpr
-    | CallGroup
+      MemberCallExpr
     | MemberAccessExpr
+    | AssignExpr
+    | PrimaryExpr
+
+PrimaryExpr ::=
+      FunctionCall
     | ValueExpr
 
 ValueExpr ::=
@@ -146,33 +147,21 @@ ValueExpr ::=
     | VALUE_BOOL
     | ID
 
-private CallGroup ::= CallExpr | MemberCallExpr
+AssignExpr ::= PrimaryExpr (EQ | PLUSEQ | MINUSEQ | MULEQ | DIVEQ) Expression {pin=2 rightAssociative=true}
 
-CallExpr ::= ID Arguments
-AssignExpr ::= Expression (EQ | PLUSEQ | MINUSEQ | MULEQ | DIVEQ) Expression {pin=1 rightAssociative=true}
-MemberCallExpr ::= MemberAccessExpr Arguments
-{
-    mixin="com.example.sampleplugin.psi.impl.SimpleMemberCallExprMixinImpl"
-    methods=[getReference]
-}
+FunctionCall ::= ID Arguments {pin=2}
+ConstructorCall ::= NEW_KW ID Arguments {pin=1}
+Arguments ::= LPAREN (Expression (COMMA Expression)*)? RPAREN {pin=1}
 
-ReturnStatement ::= RETURN_KW Expression? SEMICOLON // return expr
-
-VariableDeclaration ::= ID (
-      COLON ID EQ Expression   // a: T = value
-    | COLON ID                     // a: T
-    | EQ Expression                  // a = value
-) SEMICOLON
-
-ConstructorCall ::= NEW_KW ID Arguments // new T(...)
-
-FunctionCall ::= ID Arguments // func(...)
-
-MemberAccessExpr ::= Expression DOT ID
+MemberAccessExpr ::= PrimaryExpr DOT ID
 {
     pin=2
-    recoverWhile=MemberAccessExprRecover
     extends="com.example.sampleplugin.psi.impl.SimpleMemberAccessExprMixinImpl"
     methods=[getReference isCallExpression getLHS getRHS]
 }
-private MemberAccessExprRecover ::= !(DOT | SEMICOLON | RCURLY | ID | '\n')
+MemberCallExpr ::= MemberAccessExpr Arguments
+{
+    pin=2
+    mixin="com.example.sampleplugin.psi.impl.SimpleMemberCallExprMixinImpl"
+    methods=[getReference]
+}

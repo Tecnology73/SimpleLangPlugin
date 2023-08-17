@@ -13,7 +13,4 @@ public interface SimpleReturnStatement extends PsiElement {
   @NotNull
   PsiElement getReturnKw();
 
-  @NotNull
-  PsiElement getSemicolon();
-
 }

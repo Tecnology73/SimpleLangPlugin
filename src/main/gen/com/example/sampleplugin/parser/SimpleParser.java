@@ -36,7 +36,7 @@ public class SimpleParser implements PsiParser, LightPsiParser {
   }
 
   public static final TokenSet[] EXTENDS_SETS_ = new TokenSet[] {
-    create_token_set_(ASSIGN_EXPR, CALL_EXPR, EXPRESSION, MEMBER_CALL_EXPR,
+    create_token_set_(ASSIGN_EXPR, EXPRESSION, MEMBER_CALL_EXPR, PRIMARY_EXPR,
       VALUE_EXPR),
   };
 
@@ -45,13 +45,14 @@ public class SimpleParser implements PsiParser, LightPsiParser {
   public static boolean Arguments(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Arguments")) return false;
     if (!nextTokenIs(b, LPAREN)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, ARGUMENTS, null);
     r = consumeToken(b, LPAREN);
-    r = r && Arguments_1(b, l + 1);
-    r = r && consumeToken(b, RPAREN);
-    exit_section_(b, m, ARGUMENTS, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, Arguments_1(b, l + 1));
+    r = p && consumeToken(b, RPAREN) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // (Expression (COMMA Expression)*)?
@@ -95,15 +96,15 @@ public class SimpleParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // Expression (EQ | PLUSEQ | MINUSEQ | MULEQ | DIVEQ) Expression
+  // PrimaryExpr (EQ | PLUSEQ | MINUSEQ | MULEQ | DIVEQ) Expression
   public static boolean AssignExpr(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "AssignExpr")) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _COLLAPSE_, ASSIGN_EXPR, "<assign expr>");
-    r = Expression(b, l + 1);
-    p = r; // pin = 1
-    r = r && report_error_(b, AssignExpr_1(b, l + 1));
-    r = p && Expression(b, l + 1) && r;
+    r = PrimaryExpr(b, l + 1);
+    r = r && AssignExpr_1(b, l + 1);
+    p = r; // pin = 2
+    r = r && Expression(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -125,13 +126,14 @@ public class SimpleParser implements PsiParser, LightPsiParser {
   public static boolean Block(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Block")) return false;
     if (!nextTokenIs(b, LCURLY)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, BLOCK, null);
     r = consumeToken(b, LCURLY);
-    r = r && Block_1(b, l + 1);
-    r = r && consumeToken(b, RCURLY);
-    exit_section_(b, m, BLOCK, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, Block_1(b, l + 1));
+    r = p && consumeToken(b, RCURLY) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // Statement*
@@ -146,54 +148,32 @@ public class SimpleParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // ID Arguments
-  public static boolean CallExpr(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "CallExpr")) return false;
-    if (!nextTokenIs(b, ID)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, ID);
-    r = r && Arguments(b, l + 1);
-    exit_section_(b, m, CALL_EXPR, r);
-    return r;
-  }
-
-  /* ********************************************************** */
-  // CallExpr | MemberCallExpr
-  static boolean CallGroup(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "CallGroup")) return false;
-    boolean r;
-    r = CallExpr(b, l + 1);
-    if (!r) r = MemberCallExpr(b, l + 1);
-    return r;
-  }
-
-  /* ********************************************************** */
   // NEW_KW ID Arguments
   public static boolean ConstructorCall(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ConstructorCall")) return false;
     if (!nextTokenIs(b, NEW_KW)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeTokens(b, 0, NEW_KW, ID);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, CONSTRUCTOR_CALL, null);
+    r = consumeTokens(b, 1, NEW_KW, ID);
+    p = r; // pin = 1
     r = r && Arguments(b, l + 1);
-    exit_section_(b, m, CONSTRUCTOR_CALL, r);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */
-  // AssignExpr
-  //     | CallGroup
+  // MemberCallExpr
   //     | MemberAccessExpr
-  //     | ValueExpr
+  //     | AssignExpr
+  //     | PrimaryExpr
   public static boolean Expression(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Expression")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _COLLAPSE_, EXPRESSION, "<expression>");
-    r = AssignExpr(b, l + 1);
-    if (!r) r = CallGroup(b, l + 1);
+    r = MemberCallExpr(b, l + 1);
     if (!r) r = MemberAccessExpr(b, l + 1);
-    if (!r) r = ValueExpr(b, l + 1);
+    if (!r) r = AssignExpr(b, l + 1);
+    if (!r) r = PrimaryExpr(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
@@ -215,17 +195,18 @@ public class SimpleParser implements PsiParser, LightPsiParser {
   // FUNC_KW FunctionReceiver? FunctionId Generic? Parameters ID? Block
   public static boolean FunctionDeclaration(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionDeclaration")) return false;
+    if (!nextTokenIs(b, FUNC_KW)) return false;
     boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, FUNCTION_DECLARATION, "<function declaration>");
+    Marker m = enter_section_(b, l, _NONE_, FUNCTION_DECLARATION, null);
     r = consumeToken(b, FUNC_KW);
-    r = r && FunctionDeclaration_1(b, l + 1);
-    r = r && FunctionId(b, l + 1);
-    r = r && FunctionDeclaration_3(b, l + 1);
-    r = r && Parameters(b, l + 1);
-    r = r && FunctionDeclaration_5(b, l + 1);
-    p = r; // pin = 6
-    r = r && Block(b, l + 1);
-    exit_section_(b, l, m, r, p, SimpleParser::FunctionDeclarationRecover);
+    p = r; // pin = 1
+    r = r && report_error_(b, FunctionDeclaration_1(b, l + 1));
+    r = p && report_error_(b, FunctionId(b, l + 1)) && r;
+    r = p && report_error_(b, FunctionDeclaration_3(b, l + 1)) && r;
+    r = p && report_error_(b, Parameters(b, l + 1)) && r;
+    r = p && report_error_(b, FunctionDeclaration_5(b, l + 1)) && r;
+    r = p && Block(b, l + 1) && r;
+    exit_section_(b, l, m, r, p, null);
     return r || p;
   }
 
@@ -251,30 +232,6 @@ public class SimpleParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // !(RCURLY | FUNC_KW | TYPE_KW | <<eof>>)
-  static boolean FunctionDeclarationRecover(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "FunctionDeclarationRecover")) return false;
-    boolean r;
-    Marker m = enter_section_(b, l, _NOT_);
-    r = !FunctionDeclarationRecover_0(b, l + 1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
-  }
-
-  // RCURLY | FUNC_KW | TYPE_KW | <<eof>>
-  private static boolean FunctionDeclarationRecover_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "FunctionDeclarationRecover_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, RCURLY);
-    if (!r) r = consumeToken(b, FUNC_KW);
-    if (!r) r = consumeToken(b, TYPE_KW);
-    if (!r) r = eof(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  /* ********************************************************** */
   // ID
   public static boolean FunctionId(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionId")) return false;
@@ -291,11 +248,12 @@ public class SimpleParser implements PsiParser, LightPsiParser {
   public static boolean FunctionReceiver(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionReceiver")) return false;
     if (!nextTokenIs(b, LANGLE)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeTokens(b, 0, LANGLE, ID, RANGLE);
-    exit_section_(b, m, FUNCTION_RECEIVER, r);
-    return r;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, FUNCTION_RECEIVER, null);
+    r = consumeTokens(b, 1, LANGLE, ID, RANGLE);
+    p = r; // pin = 1
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */
@@ -303,47 +261,25 @@ public class SimpleParser implements PsiParser, LightPsiParser {
   public static boolean Generic(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Generic")) return false;
     if (!nextTokenIs(b, LANGLE)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeTokens(b, 0, LANGLE, ID, RANGLE);
-    exit_section_(b, m, GENERIC, r);
-    return r;
-  }
-
-  /* ********************************************************** */
-  // Expression DOT ID
-  public static boolean MemberAccessExpr(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "MemberAccessExpr")) return false;
     boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, MEMBER_ACCESS_EXPR, "<member access expr>");
-    r = Expression(b, l + 1);
-    r = r && consumeTokens(b, 1, DOT, ID);
-    p = r; // pin = 2
-    exit_section_(b, l, m, r, p, SimpleParser::MemberAccessExprRecover);
+    Marker m = enter_section_(b, l, _NONE_, GENERIC, null);
+    r = consumeTokens(b, 1, LANGLE, ID, RANGLE);
+    p = r; // pin = 1
+    exit_section_(b, l, m, r, p, null);
     return r || p;
   }
 
   /* ********************************************************** */
-  // !(DOT | SEMICOLON | RCURLY | ID | '\n')
-  static boolean MemberAccessExprRecover(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "MemberAccessExprRecover")) return false;
-    boolean r;
-    Marker m = enter_section_(b, l, _NOT_);
-    r = !MemberAccessExprRecover_0(b, l + 1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
-  }
-
-  // DOT | SEMICOLON | RCURLY | ID | '\n'
-  private static boolean MemberAccessExprRecover_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "MemberAccessExprRecover_0")) return false;
-    boolean r;
-    r = consumeToken(b, DOT);
-    if (!r) r = consumeToken(b, SEMICOLON);
-    if (!r) r = consumeToken(b, RCURLY);
-    if (!r) r = consumeToken(b, ID);
-    if (!r) r = consumeToken(b, "\\n");
-    return r;
+  // PrimaryExpr DOT ID
+  public static boolean MemberAccessExpr(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "MemberAccessExpr")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, MEMBER_ACCESS_EXPR, "<member access expr>");
+    r = PrimaryExpr(b, l + 1);
+    r = r && consumeTokens(b, 1, DOT, ID);
+    p = r; // pin = 2
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */
@@ -363,12 +299,13 @@ public class SimpleParser implements PsiParser, LightPsiParser {
   public static boolean Parameter(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Parameter")) return false;
     if (!nextTokenIs(b, ID)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeTokens(b, 0, ID, COLON, ID);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, PARAMETER, null);
+    r = consumeTokens(b, 1, ID, COLON, ID);
+    p = r; // pin = 1
     r = r && Parameter_3(b, l + 1);
-    exit_section_(b, m, PARAMETER, r);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // (EQ Expression)?
@@ -394,13 +331,14 @@ public class SimpleParser implements PsiParser, LightPsiParser {
   public static boolean Parameters(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Parameters")) return false;
     if (!nextTokenIs(b, LPAREN)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, PARAMETERS, null);
     r = consumeToken(b, LPAREN);
-    r = r && Parameters_1(b, l + 1);
-    r = r && consumeToken(b, RPAREN);
-    exit_section_(b, m, PARAMETERS, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, Parameters_1(b, l + 1));
+    r = p && consumeToken(b, RPAREN) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // (Parameter (COMMA Parameter)*)?
@@ -444,17 +382,30 @@ public class SimpleParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // RETURN_KW Expression? SEMICOLON
+  // FunctionCall
+  //     | ValueExpr
+  public static boolean PrimaryExpr(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "PrimaryExpr")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _COLLAPSE_, PRIMARY_EXPR, "<primary expr>");
+    r = FunctionCall(b, l + 1);
+    if (!r) r = ValueExpr(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // RETURN_KW Expression?
   public static boolean ReturnStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ReturnStatement")) return false;
     if (!nextTokenIs(b, RETURN_KW)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, RETURN_STATEMENT, null);
     r = consumeToken(b, RETURN_KW);
+    p = r; // pin = 1
     r = r && ReturnStatement_1(b, l + 1);
-    r = r && consumeToken(b, SEMICOLON);
-    exit_section_(b, m, RETURN_STATEMENT, r);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // Expression?
@@ -465,28 +416,31 @@ public class SimpleParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // ReturnStatement
+  // (
+  //       ReturnStatement
   //     | VariableDeclaration
-  //     | Expression SEMICOLON
+  //     | Expression
+  // ) SEMICOLON
   public static boolean Statement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Statement")) return false;
-    boolean r;
+    boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, STATEMENT, "<statement>");
-    r = ReturnStatement(b, l + 1);
-    if (!r) r = VariableDeclaration(b, l + 1);
-    if (!r) r = Statement_2(b, l + 1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
+    r = Statement_0(b, l + 1);
+    p = r; // pin = 1
+    r = r && consumeToken(b, SEMICOLON);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
-  // Expression SEMICOLON
-  private static boolean Statement_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "Statement_2")) return false;
+  // ReturnStatement
+  //     | VariableDeclaration
+  //     | Expression
+  private static boolean Statement_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "Statement_0")) return false;
     boolean r;
-    Marker m = enter_section_(b);
-    r = Expression(b, l + 1);
-    r = r && consumeToken(b, SEMICOLON);
-    exit_section_(b, m, null, r);
+    r = ReturnStatement(b, l + 1);
+    if (!r) r = VariableDeclaration(b, l + 1);
+    if (!r) r = Expression(b, l + 1);
     return r;
   }
 
@@ -494,13 +448,12 @@ public class SimpleParser implements PsiParser, LightPsiParser {
   // !<<eof>> (TypeDeclaration | FunctionDeclaration)
   public static boolean TopLevelDeclaration(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TopLevelDeclaration")) return false;
-    boolean r, p;
+    boolean r;
     Marker m = enter_section_(b, l, _NONE_, TOP_LEVEL_DECLARATION, "<top level declaration>");
     r = TopLevelDeclaration_0(b, l + 1);
-    p = r; // pin = 1
     r = r && TopLevelDeclaration_1(b, l + 1);
-    exit_section_(b, l, m, r, p, SimpleParser::TopLevelDeclarationRecover);
-    return r || p;
+    exit_section_(b, l, m, r, false, null);
+    return r;
   }
 
   // !<<eof>>
@@ -517,31 +470,8 @@ public class SimpleParser implements PsiParser, LightPsiParser {
   private static boolean TopLevelDeclaration_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TopLevelDeclaration_1")) return false;
     boolean r;
-    Marker m = enter_section_(b);
     r = TypeDeclaration(b, l + 1);
     if (!r) r = FunctionDeclaration(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  /* ********************************************************** */
-  // !(SEMICOLON | TYPE_KW | FUNC_KW)
-  static boolean TopLevelDeclarationRecover(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "TopLevelDeclarationRecover")) return false;
-    boolean r;
-    Marker m = enter_section_(b, l, _NOT_);
-    r = !TopLevelDeclarationRecover_0(b, l + 1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
-  }
-
-  // SEMICOLON | TYPE_KW | FUNC_KW
-  private static boolean TopLevelDeclarationRecover_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "TopLevelDeclarationRecover_0")) return false;
-    boolean r;
-    r = consumeToken(b, SEMICOLON);
-    if (!r) r = consumeToken(b, TYPE_KW);
-    if (!r) r = consumeToken(b, FUNC_KW);
     return r;
   }
 
@@ -558,49 +488,59 @@ public class SimpleParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // LCURLY TypeField* RCURLY
+  // LCURLY (TypeField SEMICOLON)* RCURLY
   public static boolean TypeBlock(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TypeBlock")) return false;
     if (!nextTokenIs(b, LCURLY)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, TYPE_BLOCK, null);
     r = consumeToken(b, LCURLY);
-    r = r && TypeBlock_1(b, l + 1);
-    r = r && consumeToken(b, RCURLY);
-    exit_section_(b, m, TYPE_BLOCK, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, TypeBlock_1(b, l + 1));
+    r = p && consumeToken(b, RCURLY) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
-  // TypeField*
+  // (TypeField SEMICOLON)*
   private static boolean TypeBlock_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TypeBlock_1")) return false;
     while (true) {
       int c = current_position_(b);
-      if (!TypeField(b, l + 1)) break;
+      if (!TypeBlock_1_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "TypeBlock_1", c)) break;
     }
     return true;
   }
 
-  /* ********************************************************** */
-  // TYPE_KW ID TypeBlock
-  public static boolean TypeDeclaration(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "TypeDeclaration")) return false;
-    if (!nextTokenIs(b, TYPE_KW)) return false;
+  // TypeField SEMICOLON
+  private static boolean TypeBlock_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TypeBlock_1_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeTokens(b, 0, TYPE_KW, ID);
-    r = r && TypeBlock(b, l + 1);
-    exit_section_(b, m, TYPE_DECLARATION, r);
+    r = TypeField(b, l + 1);
+    r = r && consumeToken(b, SEMICOLON);
+    exit_section_(b, m, null, r);
     return r;
   }
 
   /* ********************************************************** */
-  // ID (
-  //         COLON ID EQ ValueExpr   // a: T = value
-  //       | COLON ID                    // a: T
-  //       | EQ ValueExpr            // a = value
-  // ) SEMICOLON
+  // TYPE_KW Type TypeBlock
+  public static boolean TypeDeclaration(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TypeDeclaration")) return false;
+    if (!nextTokenIs(b, TYPE_KW)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, TYPE_DECLARATION, null);
+    r = consumeToken(b, TYPE_KW);
+    p = r; // pin = 1
+    r = r && report_error_(b, Type(b, l + 1));
+    r = p && TypeBlock(b, l + 1) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  /* ********************************************************** */
+  // ID (TypeFieldWithType | TypeFieldWithoutType)
   public static boolean TypeField(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TypeField")) return false;
     if (!nextTokenIs(b, ID)) return false;
@@ -608,45 +548,63 @@ public class SimpleParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b);
     r = consumeToken(b, ID);
     r = r && TypeField_1(b, l + 1);
-    r = r && consumeToken(b, SEMICOLON);
     exit_section_(b, m, TYPE_FIELD, r);
     return r;
   }
 
-  // COLON ID EQ ValueExpr   // a: T = value
-  //       | COLON ID                    // a: T
-  //       | EQ ValueExpr
+  // TypeFieldWithType | TypeFieldWithoutType
   private static boolean TypeField_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TypeField_1")) return false;
     boolean r;
-    Marker m = enter_section_(b);
-    r = TypeField_1_0(b, l + 1);
-    if (!r) r = parseTokens(b, 0, COLON, ID);
-    if (!r) r = TypeField_1_2(b, l + 1);
-    exit_section_(b, m, null, r);
+    r = TypeFieldWithType(b, l + 1);
+    if (!r) r = TypeFieldWithoutType(b, l + 1);
     return r;
   }
 
-  // COLON ID EQ ValueExpr
-  private static boolean TypeField_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "TypeField_1_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeTokens(b, 0, COLON, ID, EQ);
-    r = r && ValueExpr(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
+  /* ********************************************************** */
+  // COLON ID (EQ Expression)?
+  static boolean TypeFieldWithType(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TypeFieldWithType")) return false;
+    if (!nextTokenIs(b, COLON)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeTokens(b, 1, COLON, ID);
+    p = r; // pin = 1
+    r = r && TypeFieldWithType_2(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
-  // EQ ValueExpr
-  private static boolean TypeField_1_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "TypeField_1_2")) return false;
+  // (EQ Expression)?
+  private static boolean TypeFieldWithType_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TypeFieldWithType_2")) return false;
+    TypeFieldWithType_2_0(b, l + 1);
+    return true;
+  }
+
+  // EQ Expression
+  private static boolean TypeFieldWithType_2_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TypeFieldWithType_2_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, EQ);
-    r = r && ValueExpr(b, l + 1);
+    r = r && Expression(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
+  }
+
+  /* ********************************************************** */
+  // EQ Expression
+  static boolean TypeFieldWithoutType(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TypeFieldWithoutType")) return false;
+    if (!nextTokenIs(b, EQ)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeToken(b, EQ);
+    p = r; // pin = 1
+    r = r && Expression(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */
@@ -671,11 +629,53 @@ public class SimpleParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // ID (
-  //       COLON ID EQ Expression   // a: T = value
-  //     | COLON ID                     // a: T
-  //     | EQ Expression                  // a = value
-  // ) SEMICOLON
+  // COLON ID (EQ Expression)?
+  static boolean VarDeclWithType(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "VarDeclWithType")) return false;
+    if (!nextTokenIs(b, COLON)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeTokens(b, 1, COLON, ID);
+    p = r; // pin = 1
+    r = r && VarDeclWithType_2(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // (EQ Expression)?
+  private static boolean VarDeclWithType_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "VarDeclWithType_2")) return false;
+    VarDeclWithType_2_0(b, l + 1);
+    return true;
+  }
+
+  // EQ Expression
+  private static boolean VarDeclWithType_2_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "VarDeclWithType_2_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, EQ);
+    r = r && Expression(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // EQ Expression
+  static boolean VarDeclWithoutType(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "VarDeclWithoutType")) return false;
+    if (!nextTokenIs(b, EQ)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeToken(b, EQ);
+    p = r; // pin = 1
+    r = r && Expression(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  /* ********************************************************** */
+  // ID (VarDeclWithType | VarDeclWithoutType)
   public static boolean VariableDeclaration(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "VariableDeclaration")) return false;
     if (!nextTokenIs(b, ID)) return false;
@@ -683,44 +683,16 @@ public class SimpleParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b);
     r = consumeToken(b, ID);
     r = r && VariableDeclaration_1(b, l + 1);
-    r = r && consumeToken(b, SEMICOLON);
     exit_section_(b, m, VARIABLE_DECLARATION, r);
     return r;
   }
 
-  // COLON ID EQ Expression   // a: T = value
-  //     | COLON ID                     // a: T
-  //     | EQ Expression
+  // VarDeclWithType | VarDeclWithoutType
   private static boolean VariableDeclaration_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "VariableDeclaration_1")) return false;
     boolean r;
-    Marker m = enter_section_(b);
-    r = VariableDeclaration_1_0(b, l + 1);
-    if (!r) r = parseTokens(b, 0, COLON, ID);
-    if (!r) r = VariableDeclaration_1_2(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // COLON ID EQ Expression
-  private static boolean VariableDeclaration_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "VariableDeclaration_1_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeTokens(b, 0, COLON, ID, EQ);
-    r = r && Expression(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // EQ Expression
-  private static boolean VariableDeclaration_1_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "VariableDeclaration_1_2")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, EQ);
-    r = r && Expression(b, l + 1);
-    exit_section_(b, m, null, r);
+    r = VarDeclWithType(b, l + 1);
+    if (!r) r = VarDeclWithoutType(b, l + 1);
     return r;
   }
 

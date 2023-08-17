@@ -40,9 +40,9 @@ public class SimpleBlockImpl extends ASTWrapperPsiElement implements SimpleBlock
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getRcurly() {
-    return findNotNullChildByType(RCURLY);
+    return findChildByType(RCURLY);
   }
 
 }

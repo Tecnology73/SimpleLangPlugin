@@ -40,9 +40,9 @@ public class SimpleArgumentsImpl extends ASTWrapperPsiElement implements SimpleA
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getRparen() {
-    return findNotNullChildByType(RPAREN);
+    return findChildByType(RPAREN);
   }
 
 }

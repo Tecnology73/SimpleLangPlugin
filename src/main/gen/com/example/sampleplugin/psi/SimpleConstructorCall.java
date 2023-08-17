@@ -7,10 +7,10 @@ import com.intellij.psi.PsiElement;
 
 public interface SimpleConstructorCall extends PsiElement {
 
-  @NotNull
+  @Nullable
   SimpleArguments getArguments();
 
-  @NotNull
+  @Nullable
   PsiElement getId();
 
   @NotNull

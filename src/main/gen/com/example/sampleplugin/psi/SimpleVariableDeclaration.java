@@ -16,7 +16,4 @@ public interface SimpleVariableDeclaration extends PsiElement {
   @Nullable
   PsiElement getEq();
 
-  @NotNull
-  PsiElement getSemicolon();
-
 }

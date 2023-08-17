@@ -45,10 +45,4 @@ public class SimpleVariableDeclarationImpl extends ASTWrapperPsiElement implemen
     return findChildByType(EQ);
   }
 
-  @Override
-  @NotNull
-  public PsiElement getSemicolon() {
-    return findNotNullChildByType(SEMICOLON);
-  }
-
 }

@@ -13,7 +13,7 @@ public interface SimpleTypeBlock extends PsiElement {
   @NotNull
   PsiElement getLcurly();
 
-  @NotNull
+  @Nullable
   PsiElement getRcurly();
 
 }

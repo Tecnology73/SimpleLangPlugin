@@ -10,7 +10,7 @@ public interface SimpleParameter extends PsiElement {
   @Nullable
   SimpleExpression getExpression();
 
-  @NotNull
+  @Nullable
   PsiElement getColon();
 
   @Nullable

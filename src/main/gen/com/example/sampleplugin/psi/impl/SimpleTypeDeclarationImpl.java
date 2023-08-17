@@ -28,15 +28,15 @@ public class SimpleTypeDeclarationImpl extends SimpleNamedElementImpl implements
   }
 
   @Override
-  @NotNull
-  public SimpleTypeBlock getTypeBlock() {
-    return findNotNullChildByClass(SimpleTypeBlock.class);
+  @Nullable
+  public SimpleType getType() {
+    return findChildByClass(SimpleType.class);
   }
 
   @Override
-  @NotNull
-  public PsiElement getId() {
-    return findNotNullChildByType(ID);
+  @Nullable
+  public SimpleTypeBlock getTypeBlock() {
+    return findChildByClass(SimpleTypeBlock.class);
   }
 
   @Override

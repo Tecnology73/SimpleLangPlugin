@@ -28,15 +28,15 @@ public class SimpleConstructorCallImpl extends ASTWrapperPsiElement implements S
   }
 
   @Override
-  @NotNull
+  @Nullable
   public SimpleArguments getArguments() {
-    return findNotNullChildByClass(SimpleArguments.class);
+    return findChildByClass(SimpleArguments.class);
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getId() {
-    return findNotNullChildByType(ID);
+    return findChildByType(ID);
   }
 
   @Override

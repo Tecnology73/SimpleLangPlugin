@@ -34,9 +34,9 @@ public class SimpleFunctionDeclarationImpl extends SimpleFunctionImpl implements
   }
 
   @Override
-  @NotNull
+  @Nullable
   public SimpleFunctionId getFunctionId() {
-    return findNotNullChildByClass(SimpleFunctionId.class);
+    return findChildByClass(SimpleFunctionId.class);
   }
 
   @Override
@@ -52,9 +52,9 @@ public class SimpleFunctionDeclarationImpl extends SimpleFunctionImpl implements
   }
 
   @Override
-  @NotNull
+  @Nullable
   public SimpleParameters getParameters() {
-    return findNotNullChildByClass(SimpleParameters.class);
+    return findChildByClass(SimpleParameters.class);
   }
 
   @Override

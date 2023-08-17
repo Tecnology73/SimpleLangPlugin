@@ -28,9 +28,9 @@ public class SimpleGenericImpl extends ASTWrapperPsiElement implements SimpleGen
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getId() {
-    return findNotNullChildByType(ID);
+    return findChildByType(ID);
   }
 
   @Override
@@ -40,9 +40,9 @@ public class SimpleGenericImpl extends ASTWrapperPsiElement implements SimpleGen
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getRangle() {
-    return findNotNullChildByType(RANGLE);
+    return findChildByType(RANGLE);
   }
 
 }

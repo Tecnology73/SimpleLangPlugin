@@ -10,15 +10,15 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.example.sampleplugin.psi.SimpleTypes.*;
 import com.example.sampleplugin.psi.*;
 
-public class SimpleCallExprImpl extends SimpleExpressionImpl implements SimpleCallExpr {
+public class SimplePrimaryExprImpl extends SimpleExpressionImpl implements SimplePrimaryExpr {
 
-  public SimpleCallExprImpl(@NotNull ASTNode node) {
+  public SimplePrimaryExprImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   @Override
   public void accept(@NotNull SimpleVisitor visitor) {
-    visitor.visitCallExpr(this);
+    visitor.visitPrimaryExpr(this);
   }
 
   @Override
@@ -28,15 +28,9 @@ public class SimpleCallExprImpl extends SimpleExpressionImpl implements SimpleCa
   }
 
   @Override
-  @NotNull
-  public SimpleArguments getArguments() {
-    return findNotNullChildByClass(SimpleArguments.class);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getId() {
-    return findNotNullChildByType(ID);
+  @Nullable
+  public SimpleFunctionCall getFunctionCall() {
+    return findChildByClass(SimpleFunctionCall.class);
   }
 
 }

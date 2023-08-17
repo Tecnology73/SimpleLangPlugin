@@ -34,9 +34,9 @@ public class SimpleParameterImpl extends ASTWrapperPsiElement implements SimpleP
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getColon() {
-    return findNotNullChildByType(COLON);
+    return findChildByType(COLON);
   }
 
   @Override

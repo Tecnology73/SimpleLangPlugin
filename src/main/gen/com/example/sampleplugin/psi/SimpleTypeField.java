@@ -8,15 +8,12 @@ import com.intellij.psi.PsiElement;
 public interface SimpleTypeField extends PsiElement {
 
   @Nullable
-  SimpleValueExpr getValueExpr();
+  SimpleExpression getExpression();
 
   @Nullable
   PsiElement getColon();
 
   @Nullable
   PsiElement getEq();
-
-  @NotNull
-  PsiElement getSemicolon();
 
 }

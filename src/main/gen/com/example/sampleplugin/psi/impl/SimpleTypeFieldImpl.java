@@ -29,8 +29,8 @@ public class SimpleTypeFieldImpl extends ASTWrapperPsiElement implements SimpleT
 
   @Override
   @Nullable
-  public SimpleValueExpr getValueExpr() {
-    return findChildByClass(SimpleValueExpr.class);
+  public SimpleExpression getExpression() {
+    return findChildByClass(SimpleExpression.class);
   }
 
   @Override
@@ -43,12 +43,6 @@ public class SimpleTypeFieldImpl extends ASTWrapperPsiElement implements SimpleT
   @Nullable
   public PsiElement getEq() {
     return findChildByType(EQ);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getSemicolon() {
-    return findNotNullChildByType(SEMICOLON);
   }
 
 }

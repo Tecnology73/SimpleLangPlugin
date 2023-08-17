@@ -5,12 +5,9 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface SimpleCallExpr extends SimpleExpression {
+public interface SimplePrimaryExpr extends SimpleExpression {
 
-  @NotNull
-  SimpleArguments getArguments();
-
-  @NotNull
-  PsiElement getId();
+  @Nullable
+  SimpleFunctionCall getFunctionCall();
 
 }

@@ -11,7 +11,7 @@ public interface SimpleFunctionDeclaration extends SimpleFunction {
   @Nullable
   SimpleBlock getBlock();
 
-  @NotNull
+  @Nullable
   SimpleFunctionId getFunctionId();
 
   @Nullable
@@ -20,7 +20,7 @@ public interface SimpleFunctionDeclaration extends SimpleFunction {
   @Nullable
   SimpleGeneric getGeneric();
 
-  @NotNull
+  @Nullable
   SimpleParameters getParameters();
 
   @NotNull

@@ -13,7 +13,7 @@ public interface SimpleParameters extends PsiElement {
   @NotNull
   PsiElement getLparen();
 
-  @NotNull
+  @Nullable
   PsiElement getRparen();
 
 }

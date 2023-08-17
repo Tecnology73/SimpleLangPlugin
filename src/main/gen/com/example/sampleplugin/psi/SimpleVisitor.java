@@ -19,10 +19,6 @@ public class SimpleVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitCallExpr(@NotNull SimpleCallExpr o) {
-    visitExpression(o);
-  }
-
   public void visitConstructorCall(@NotNull SimpleConstructorCall o) {
     visitPsiElement(o);
   }
@@ -65,6 +61,10 @@ public class SimpleVisitor extends PsiElementVisitor {
 
   public void visitParameters(@NotNull SimpleParameters o) {
     visitPsiElement(o);
+  }
+
+  public void visitPrimaryExpr(@NotNull SimplePrimaryExpr o) {
+    visitExpression(o);
   }
 
   public void visitReturnStatement(@NotNull SimpleReturnStatement o) {

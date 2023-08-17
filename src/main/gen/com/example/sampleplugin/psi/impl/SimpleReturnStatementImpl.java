@@ -39,10 +39,4 @@ public class SimpleReturnStatementImpl extends ASTWrapperPsiElement implements S
     return findNotNullChildByType(RETURN_KW);
   }
 
-  @Override
-  @NotNull
-  public PsiElement getSemicolon() {
-    return findNotNullChildByType(SEMICOLON);
-  }
-
 }

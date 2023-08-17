@@ -7,13 +7,13 @@ import com.intellij.psi.PsiElement;
 
 public interface SimpleFunctionReceiver extends PsiElement {
 
-  @NotNull
+  @Nullable
   PsiElement getId();
 
   @NotNull
   PsiElement getLangle();
 
-  @NotNull
+  @Nullable
   PsiElement getRangle();
 
 }

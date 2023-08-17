@@ -11,7 +11,6 @@ public interface SimpleTypes {
   IElementType ARGUMENTS = new SimpleElementType("ARGUMENTS");
   IElementType ASSIGN_EXPR = new SimpleElementType("ASSIGN_EXPR");
   IElementType BLOCK = new SimpleElementType("BLOCK");
-  IElementType CALL_EXPR = new SimpleElementType("CALL_EXPR");
   IElementType CONSTRUCTOR_CALL = new SimpleElementType("CONSTRUCTOR_CALL");
   IElementType EXPRESSION = new SimpleElementType("EXPRESSION");
   IElementType FUNCTION_CALL = new SimpleElementType("FUNCTION_CALL");
@@ -23,6 +22,7 @@ public interface SimpleTypes {
   IElementType MEMBER_CALL_EXPR = new SimpleElementType("MEMBER_CALL_EXPR");
   IElementType PARAMETER = new SimpleElementType("PARAMETER");
   IElementType PARAMETERS = new SimpleElementType("PARAMETERS");
+  IElementType PRIMARY_EXPR = new SimpleElementType("PRIMARY_EXPR");
   IElementType RETURN_STATEMENT = new SimpleElementType("RETURN_STATEMENT");
   IElementType STATEMENT = new SimpleElementType("STATEMENT");
   IElementType TOP_LEVEL_DECLARATION = new SimpleElementType("TOP_LEVEL_DECLARATION");
@@ -87,9 +87,6 @@ public interface SimpleTypes {
       else if (type == BLOCK) {
         return new SimpleBlockImpl(node);
       }
-      else if (type == CALL_EXPR) {
-        return new SimpleCallExprImpl(node);
-      }
       else if (type == CONSTRUCTOR_CALL) {
         return new SimpleConstructorCallImpl(node);
       }
@@ -122,6 +119,9 @@ public interface SimpleTypes {
       }
       else if (type == PARAMETERS) {
         return new SimpleParametersImpl(node);
+      }
+      else if (type == PRIMARY_EXPR) {
+        return new SimplePrimaryExprImpl(node);
       }
       else if (type == RETURN_STATEMENT) {
         return new SimpleReturnStatementImpl(node);

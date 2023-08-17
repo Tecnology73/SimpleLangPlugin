@@ -8,11 +8,11 @@ import com.intellij.psi.PsiReference;
 
 public interface SimpleTypeDeclaration extends SimpleNamedElement {
 
-  @NotNull
-  SimpleTypeBlock getTypeBlock();
+  @Nullable
+  SimpleType getType();
 
-  @NotNull
-  PsiElement getId();
+  @Nullable
+  SimpleTypeBlock getTypeBlock();
 
   @NotNull
   PsiElement getTypeKw();
